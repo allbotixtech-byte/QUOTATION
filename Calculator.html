@@ -1,0 +1,2791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Quotation Estimator</title>
+    <style>
+        body {
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #f7f7f7 0%, #e5e7eb 100%);
+            color: #111827;
+        }
+        .converter {
+            position: relative;
+            width: min(860px, 100%);
+            padding: 34px;
+            border-radius: 28px;
+            background: #ffffff;
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.12);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+        .converter::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: 28px;
+            background: radial-gradient(circle at top left, rgba(239, 68, 68, 0.12), transparent 30%),
+                        radial-gradient(circle at bottom right, rgba(17, 24, 39, 0.06), transparent 40%);
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 2rem;
+            letter-spacing: 0.05em;
+            color: #111827;
+        }
+        p {
+            margin: 0 0 18px;
+            color: #4b5563;
+        }
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .brand-logo {
+            height: 50px;
+            width: auto;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 8px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+        .brand-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .brand-title .tagline {
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+        .row {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+        .section-panel {
+            padding: 20px 20px 16px;
+            border-radius: 20px;
+            background: #f8fafc;
+            border: 1px solid rgba(209, 213, 219, 0.85);
+        }
+        .row.columns {
+            grid-template-columns: 1fr 1fr;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .standee-preview {
+            min-height: 260px;
+        }
+        .standee-preview .image-holder {
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid rgba(229, 231, 235, 0.95);
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+        }
+        .standee-preview img {
+            max-width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 14px;
+        }
+        label {
+            font-size: 0.90rem;
+            color: #4e0000;
+        }
+        input,
+        select,
+        textarea {
+            width: 90%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(184, 148, 148, 0.25);
+            background: #ffd3d3;
+            color: #000000;
+            font-size: 1rem;
+            outline: none;
+            font-family: inherit;
+            resize: vertical;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+        .result {
+            margin-top: 14px;
+            padding: 18px 16px;
+            border-radius: 16px;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .summary-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 22px;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid rgba(229, 231, 235, 0.95);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+        }
+        .summary-item strong {
+            font-weight: 700;
+            color: #ff0000;
+        }
+        .summary-item span {
+            color: rgb(95, 0, 0);
+            text-align: right;
+        }
+        h2 {
+            margin: 24px 0 10px;
+            font-size: 1.4rem;
+            color: #ff0000;
+        }
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 12px;
+            background: #ef4444;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        button:hover {
+            background: #b91c1c;
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        .actions button:first-child {
+            background: #ef4444;
+            color: #ffffff;
+        }
+        .actions button:last-child {
+            background: transparent;
+            color: #111827;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+        }
+        .actions button:last-child:hover {
+            background: rgba(239, 68, 68, 0.12);
+        }
+        .small {
+            font-size: 0.92rem;
+            color: #94a3b8;
+        }
+        .domain-panel {
+            padding: 20px 20px 16px;
+            border-radius: 20px;
+            background: #fff1f1;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            margin-bottom: 18px;
+        }
+        .ai-feature-list {
+            max-height: 440px;
+            overflow-y: auto;
+            border: 1px solid rgba(209, 213, 219, 0.85);
+            border-radius: 14px;
+            padding: 6px 14px;
+            background: #ffffff;
+        }
+        .ai-feature-category {
+            font-weight: 700;
+            color: #ff0000;
+            margin: 14px 0 4px;
+            font-size: 0.95rem;
+        }
+        .ai-feature-category:first-child {
+            margin-top: 8px;
+        }
+        .ai-feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 4px;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+            cursor: pointer;
+        }
+        .ai-feature-item:last-child {
+            border-bottom: none;
+        }
+        .ai-feature-item input[type="checkbox"] {
+            width: auto;
+            margin-top: 3px;
+            accent-color: #ef4444;
+        }
+        .ai-feature-info {
+            flex: 1;
+        }
+        .ai-feature-name {
+            font-weight: 600;
+            color: #111827;
+        }
+        .ai-feature-desc {
+            font-size: 0.82rem;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        .ai-feature-price {
+            font-weight: 700;
+            color: #b91c1c;
+            white-space: nowrap;
+            font-size: 0.88rem;
+        }
+        .line-item-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .line-item-row input,
+        .line-item-row select {
+            width: auto;
+            flex: 1;
+            min-width: 110px;
+            padding: 10px 12px;
+        }
+        .line-item-row .remove-item-btn {
+            flex: 0 0 auto;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 10px;
+            background: #6b7280;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        .line-item-row .remove-item-btn:hover {
+            background: #374151;
+        }
+        .secondary-button {
+            background: #ffffff;
+            color: #ef4444;
+            border: 1.5px dashed #ef4444;
+            font-weight: 600;
+            padding: 10px 16px;
+        }
+        .secondary-button:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        @media (max-width: 640px) {
+            .row.columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="converter">
+        <div class="brand-header">
+            <img src="NANTA.jpeg" alt="NANTA logo" class="brand-logo" />
+            <div class="brand-title">
+                <h1>Sales Quotation Estimator</h1>
+                <span class="tagline">NANTA-branded estimator for standee and LED display pricing</span>
+            </div>
+        </div>
+        <p>Estimate Robotics, AV, and AI Video Analytics costs with model-based pricing and installation/fabrication/scaffolding costs.</p>
+        <div class="domain-panel">
+            <div class="row">
+                <div class="field">
+                    <label for="domainSelect">Domain</label>
+                    <select id="domainSelect">
+                        <option value="av">AV</option>
+                        <option value="robotics">Robotics</option>
+                        <option value="ai">AI Video Analytics (VMS)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="avDomainSection">
+            <div class="row">
+                <div class="field">
+                    <label for="projectType">Project type</label>
+                    <select id="projectType">
+                        <option value="standee">Standee</option>
+                        <option value="led">LED Display</option>
+                        <option value="interactive-panel">Interactive Flat Panel</option>
+                        <option value="conference">Conferencing Cameras &amp; Microphones</option>
+                        <option value="cables">AV Cables</option>
+                    </select>
+                </div>
+            </div>
+            <section id="standeeSection" class="section-panel">
+                <h2>Standee Estimator</h2>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="standeeCategory">Standee type</label>
+                        <select id="standeeCategory">
+                            <option value="Wall Mount">Wall Mount</option>
+                            <option value="Imported Display - A-Type">Imported Display - A-Type</option>
+                            <option value="Touch">Touch</option>
+                            <option value="Totem">Totem</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="standeeModel">Standee model</label>
+                        <select id="standeeModel"></select>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="standeePriceTier">Price tier</label>
+                        <select id="standeePriceTier">
+                            <option value="partner">Partner price</option>
+                            <option value="endUser">End-user MRP</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="standeeQuantity">Quantity</label>
+                        <input id="standeeQuantity" type="number" step="1" min="1" value="1" />
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="standeeDetails">Model details</label>
+                        <textarea id="standeeDetails" rows="4" readonly></textarea>
+                    </div>
+                    <div class="field standee-preview">
+                        <label>Preview</label>
+                        <div class="image-holder">
+                            <img id="standeePreview" src="WALLmOUNT.jpg" alt="Standee preview" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="standeeInstallationPerUnit">Installation cost / unit</label>
+                        <input id="standeeInstallationPerUnit" type="text" readonly />
+                    </div>
+                    <div class="field">
+                        <label for="standeeFabricationPerUnit">Fabrication cost / unit</label>
+                        <input id="standeeFabricationPerUnit" type="text" readonly />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label for="standeeScaffoldingPerUnit">Scaffolding cost / unit</label>
+                        <input id="standeeScaffoldingPerUnit" type="text" readonly />
+                    </div>
+                </div>
+            </section>
+            <section id="ledSection" class="section-panel" style="display:none;">
+                <h2>LED Display Estimator</h2>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="ledHeight">Height</label>
+                        <input id="ledHeight" type="number" step="any" min="0" value="4" />
+                    </div>
+                    <div class="field">
+                        <label for="ledWidth">Width</label>
+                        <input id="ledWidth" type="number" step="any" min="0" value="6" />
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="ledUnit">Dimension unit</label>
+                        <select id="ledUnit">
+                            <option value="ft">Feet</option>
+                            <option value="m">Meters</option>
+                            <option value="in">Inches</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="ledCategory">Environment</label>
+                        <select id="ledCategory">
+                            <option value="indoor">Indoor</option>
+                            <option value="outdoor">Outdoor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="ledModel">LED model</label>
+                        <select id="ledModel"></select>
+                    </div>
+                    <div class="field">
+                        <label for="ledPriceTier">Price tier</label>
+                        <select id="ledPriceTier">
+                            <option value="b2b">B2B (Partner price)</option>
+                            <option value="b2c">B2C (End-user price)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="ledControlMode">Controller mode</label>
+                        <select id="ledControlMode">
+                            <option value="Synchronous">Synchronous (video wall, fixed live source)</option>
+                            <option value="Asynchronous">Asynchronous (PC-free, cloud/standalone signage)</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="ledRedundancy">Redundancy</label>
+                        <select id="ledRedundancy">
+                            <option value="auto">Auto (per engineering rules)</option>
+                            <option value="yes">Force redundant (dual controller)</option>
+                            <option value="no">No redundancy</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label for="ledDetails">Model details</label>
+                        <textarea id="ledDetails" rows="4" readonly></textarea>
+                        <div id="controllerStatus" class="small">Controller pricing loads from live supplier data.</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label for="ledControllerDetails">Controller selection (auto-computed)</label>
+                        <textarea id="ledControllerDetails" rows="8" readonly></textarea>
+                    </div>
+                </div>
+            </section>
+            <section id="conferenceSection" class="section-panel" style="display:none;">
+                <h2>Conferencing Camera &amp; Microphone Estimator</h2>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="conferenceModel">Device model</label>
+                        <select id="conferenceModel"></select>
+                    </div>
+                    <div class="field">
+                        <label for="conferencePriceTier">Price tier</label>
+                        <select id="conferencePriceTier">
+                            <option value="partner">Partner price</option>
+                            <option value="distributor">Distributor price</option>
+                            <option value="customer">Customer price</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="conferenceQuantity">Quantity</label>
+                        <input id="conferenceQuantity" type="number" step="1" min="1" value="1" />
+                    </div>
+                    <div class="field">
+                        <label for="conferenceDetails">Model details</label>
+                        <textarea id="conferenceDetails" rows="4" readonly></textarea>
+                    </div>
+                </div>
+                <div class="row columns" id="conferenceAccessoryRow" style="display:none;">
+                    <div class="field">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="conferenceAccessoryCheckbox" style="width:auto;" />
+                            <span id="conferenceAccessoryLabel">Add wireless dongle accessory</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field standee-preview">
+                        <label>Preview</label>
+                        <div class="image-holder">
+                            <img id="conferencePreview" src="av-assets/NT-VX630AL.png" alt="Conferencing device preview" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="interactivePanelSection" class="section-panel" style="display:none;">
+                <h2>Interactive Flat Panel Estimator</h2>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="ifpModel">Panel model</label>
+                        <select id="ifpModel"></select>
+                    </div>
+                    <div class="field">
+                        <label for="ifpPriceTier">Price tier</label>
+                        <select id="ifpPriceTier">
+                            <option value="distributor">Distributor price</option>
+                            <option value="partner">Partner price</option>
+                            <option value="customer">Customer price</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="ifpQuantity">Quantity</label>
+                        <input id="ifpQuantity" type="number" step="1" min="1" value="1" />
+                    </div>
+                    <div class="field">
+                        <label for="ifpDetails">Model details</label>
+                        <textarea id="ifpDetails" rows="4" readonly></textarea>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field standee-preview">
+                        <label>Preview</label>
+                        <div class="image-holder">
+                            <img id="ifpPreview" src="av-assets/IFP-65-75.png" alt="Interactive panel preview" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="cablesSection" class="section-panel" style="display:none;">
+                <h2>AV Cable Estimator</h2>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="cableSeriesSelect">Cable type</label>
+                        <select id="cableSeriesSelect"></select>
+                    </div>
+                    <div class="field">
+                        <label for="cableModel">Length / SKU</label>
+                        <select id="cableModel"></select>
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="cablePriceTier">Price tier</label>
+                        <select id="cablePriceTier">
+                            <option value="distributor">Distributor price</option>
+                            <option value="partner">Partner price</option>
+                            <option value="customer">Customer price</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="cableQuantity">Quantity</label>
+                        <input id="cableQuantity" type="number" step="1" min="1" value="1" />
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="cableDetails">Model details</label>
+                        <textarea id="cableDetails" rows="4" readonly></textarea>
+                    </div>
+                    <div class="field standee-preview">
+                        <label>Preview</label>
+                        <div class="image-holder">
+                            <img id="cablePreview" src="av-assets/cable-hdmi-aoc-aa.png" alt="Cable preview" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <section id="roboticsSection" class="section-panel" style="display:none;">
+            <h2>Robotics Estimator</h2>
+            <div class="row columns">
+                <div class="field">
+                    <label for="roboticsModel">Robot model</label>
+                    <select id="roboticsModel"></select>
+                </div>
+                <div class="field">
+                    <label for="roboticsPriceTier">Price tier</label>
+                    <select id="roboticsPriceTier">
+                        <option value="distributor">Distributor price</option>
+                        <option value="partner">Partner price</option>
+                        <option value="customer">Customer price</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row columns">
+                <div class="field">
+                    <label for="roboticsQuantity">Quantity</label>
+                    <input id="roboticsQuantity" type="number" step="1" min="1" value="1" />
+                </div>
+                <div class="field">
+                    <label for="roboticsDetails">Model details</label>
+                    <textarea id="roboticsDetails" rows="3" readonly></textarea>
+                </div>
+            </div>
+            <div class="row columns">
+                <div class="field standee-preview">
+                    <label>Preview</label>
+                    <div class="image-holder">
+                        <img id="roboticsPreview" src="robot-assets/T8.png" alt="Robot preview" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="aiSection" class="section-panel" style="display:none;">
+            <h2>AI Video Analytics Estimator</h2>
+            <div class="row columns">
+                <div class="field">
+                    <label for="aiCameraCount">Number of cameras</label>
+                    <input id="aiCameraCount" type="number" step="1" min="1" value="25" />
+                </div>
+                <div class="field">
+                    <label>Volume slab</label>
+                    <div id="aiSlabLabel" class="small" style="padding-top:10px;">1–25 Cameras</div>
+                </div>
+            </div>
+            <p class="small">Per-camera / per-year list pricing, exclusive of 18% GST. Volume slab is based on the total camera count above. Select the analytics features required for this project.</p>
+            <div class="field">
+                <label>Select analytics features</label>
+                <div id="aiFeatureList" class="ai-feature-list"></div>
+            </div>
+        </section>
+        <h2>Quotation Details</h2>
+        <div class="section-panel">
+            <div class="row columns">
+                <div class="field">
+                    <label for="quotationNumber">Quotation number</label>
+                    <input id="quotationNumber" type="text" />
+                </div>
+                <div class="field">
+                    <label for="preparedBy">Prepared by</label>
+                    <input id="preparedBy" type="text" placeholder="NANTA representative name" />
+                </div>
+            </div>
+            <div class="row columns">
+                <div class="field">
+                    <label for="clientName">Client name</label>
+                    <input id="clientName" type="text" placeholder="Contact person" />
+                </div>
+                <div class="field">
+                    <label for="clientCompany">Client company</label>
+                    <input id="clientCompany" type="text" placeholder="Company / organization" />
+                </div>
+            </div>
+            <div class="row columns">
+                <div class="field">
+                    <label for="clientEmail">Client email</label>
+                    <input id="clientEmail" type="email" />
+                </div>
+                <div class="field">
+                    <label for="clientPhone">Client phone</label>
+                    <input id="clientPhone" type="tel" />
+                </div>
+            </div>
+            <div class="row columns">
+                <div class="field">
+                    <label for="clientAddress">Client address</label>
+                    <textarea id="clientAddress" rows="2"></textarea>
+                </div>
+                <div class="field">
+                    <label for="validityDays">Quote valid for (days)</label>
+                    <input id="validityDays" type="number" step="1" min="1" value="7" />
+                </div>
+            </div>
+        </div>
+        <h2>Cost Inputs</h2>
+        <div class="section-panel">
+        <div id="extraCostFields">
+        <div class="row columns">
+            <div class="field">
+                <label for="installationCost">Additional installation cost</label>
+                <input id="installationCost" type="number" step="any" min="0" value="0" />
+            </div>
+            <div class="field">
+                <label for="fabricationCost">Fabrication cost</label>
+                <input id="fabricationCost" type="number" step="any" min="0" value="0" />
+            </div>
+        </div>
+        <div class="row columns" id="scaffoldingCostRow">
+            <div class="field">
+                <label for="scaffoldingCost">Scaffolding cost</label>
+                <input id="scaffoldingCost" type="number" step="any" min="0" value="0" />
+            </div>
+        </div>
+        </div>
+        <div class="row columns">
+            <div class="field">
+                <label for="markupPercent">Markup %</label>
+                <input id="markupPercent" type="number" step="any" min="0" value="10" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="field">
+                <label>Products in this quote</label>
+                <div id="cartRows"></div>
+                <button id="addToQuoteButton" type="button" class="secondary-button">+ Add configured product to quote</button>
+                <div class="small">Configure a product above (any domain), then click this to add it here. Change the domain/model and click again to add another product to the same quote.</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="field">
+                <label>Discounts</label>
+                <div id="discountRows"></div>
+                <button id="addDiscountButton" type="button" class="secondary-button">+ Add Discount</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="field">
+                <label>Custom products</label>
+                <div id="customProductRows"></div>
+                <button id="addCustomProductButton" type="button" class="secondary-button">+ Add Custom Product</button>
+            </div>
+        </div>
+        <div class="actions">
+            <button id="calculateButton" type="button">Calculate Estimate</button>
+            <button id="exportPdfButton" type="button">Download PDF</button>
+            <button id="resetButton" type="button">Reset All</button>
+        </div>
+        </div>
+        <div class="summary-grid" id="summaryGrid"></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="AV/led-controller-data.js"></script>
+    <script>
+        const standeeModels = {
+            'WM-TV-24-IPS': {
+                category: 'Wall Mount',
+                details: '24" Wall Mount digital display standee.',
+                partnerPrice: 23960,
+                endUserPrice: 31946,
+                fabricationPerUnit: 500,
+                installationPerUnit: 300,
+                scaffoldingPerUnit: 120,
+                size: '24 Inch'
+            },
+            'WM-TV-32-IPS': {
+                category: 'Wall Mount',
+                details: '32" Wall Mount digital display standee.',
+                partnerPrice: 27620,
+                endUserPrice: 36826,
+                fabricationPerUnit: 520,
+                installationPerUnit: 320,
+                scaffoldingPerUnit: 130,
+                size: '32 Inch'
+            },
+            'WM-TV-43-IPS-FHD': {
+                category: 'Wall Mount',
+                details: '43" FHD Wall Mount digital display standee.',
+                partnerPrice: 36900,
+                endUserPrice: 49200,
+                fabricationPerUnit: 650,
+                installationPerUnit: 420,
+                scaffoldingPerUnit: 160,
+                size: '43 Inch FHD'
+            },
+            'WM-TV-43-IPS-4K': {
+                category: 'Wall Mount',
+                details: '43" 4K Wall Mount digital display standee.',
+                partnerPrice: 54527,
+                endUserPrice: 72702,
+                fabricationPerUnit: 700,
+                installationPerUnit: 450,
+                scaffoldingPerUnit: 170,
+                size: '43 Inch 4K'
+            },
+            'WM-TV-50-IPS-4K': {
+                category: 'Wall Mount',
+                details: '50" 4K Wall Mount digital display standee.',
+                partnerPrice: 67652,
+                endUserPrice: 90202,
+                fabricationPerUnit: 800,
+                installationPerUnit: 520,
+                scaffoldingPerUnit: 180,
+                size: '50 Inch 4K'
+            },
+            'WM-TV-50-IPS-C': {
+                category: 'Wall Mount',
+                details: '50" Commercial Wall Mount digital display standee.',
+                partnerPrice: 90639,
+                endUserPrice: 120852,
+                fabricationPerUnit: 900,
+                installationPerUnit: 560,
+                scaffoldingPerUnit: 190,
+                size: '50 Inch Commercial'
+            },
+            'WM-TV-55-IPS-4K': {
+                category: 'Wall Mount',
+                details: '55" 4K Wall Mount digital display standee.',
+                partnerPrice: 71402,
+                endUserPrice: 95202,
+                fabricationPerUnit: 950,
+                installationPerUnit: 600,
+                scaffoldingPerUnit: 210,
+                size: '55 Inch 4K'
+            },
+            'WM-TV-65-IPS-4K': {
+                category: 'Wall Mount',
+                details: '65" 4K Wall Mount digital display standee.',
+                partnerPrice: 71402,
+                endUserPrice: 95202,
+                fabricationPerUnit: 1050,
+                installationPerUnit: 650,
+                scaffoldingPerUnit: 220,
+                size: '65 Inch 4K'
+            },
+            'WM-TV-75-IPS-4K': {
+                category: 'Wall Mount',
+                details: '75" 4K Wall Mount digital display standee.',
+                partnerPrice: 138900,
+                endUserPrice: 185200,
+                fabricationPerUnit: 1200,
+                installationPerUnit: 700,
+                scaffoldingPerUnit: 240,
+                size: '75 Inch 4K'
+            },
+            'WM-TV-85-IPS-4K': {
+                category: 'Wall Mount',
+                details: '85" 4K Wall Mount digital display standee.',
+                partnerPrice: 176400,
+                endUserPrice: 235200,
+                fabricationPerUnit: 1350,
+                installationPerUnit: 760,
+                scaffoldingPerUnit: 260,
+                size: '85 Inch 4K'
+            },
+            'WM-TV-98-IPS-4K': {
+                category: 'Wall Mount',
+                details: '98" 4K Wall Mount digital display standee.',
+                partnerPrice: 307652,
+                endUserPrice: 410202,
+                fabricationPerUnit: 1600,
+                installationPerUnit: 850,
+                scaffoldingPerUnit: 300,
+                size: '98 Inch 4K'
+            },
+            'WM-32-IMP': {
+                category: 'Imported Display - A-Type',
+                details: '32" Imported A-Type display standee.',
+                partnerPrice: 69207,
+                endUserPrice: 92276,
+                fabricationPerUnit: 600,
+                installationPerUnit: 360,
+                scaffoldingPerUnit: 150,
+                size: '32 Inch'
+            },
+            'WM-43-IMP': {
+                category: 'Imported Display - A-Type',
+                details: '43" Imported A-Type display standee.',
+                partnerPrice: 93705,
+                endUserPrice: 124940,
+                fabricationPerUnit: 700,
+                installationPerUnit: 420,
+                scaffoldingPerUnit: 180,
+                size: '43 Inch'
+            },
+            'WM-32-IMP-CT': {
+                category: 'Touch',
+                details: '32" Capacitive touch wall mount display standee.',
+                partnerPrice: 92016,
+                endUserPrice: 122688,
+                fabricationPerUnit: 780,
+                installationPerUnit: 430,
+                scaffoldingPerUnit: 160,
+                size: '32 Inch Capacitive Touch'
+            },
+            'WM-43-IMP-CT': {
+                category: 'Touch',
+                details: '43" Capacitive touch wall mount display standee.',
+                partnerPrice: 138480,
+                endUserPrice: 184640,
+                fabricationPerUnit: 900,
+                installationPerUnit: 520,
+                scaffoldingPerUnit: 180,
+                size: '43 Inch Capacitive Touch'
+            },
+            'WM-32-IMP-IRT': {
+                category: 'Touch',
+                details: '32" IR touch wall mount display standee.',
+                partnerPrice: 83991,
+                endUserPrice: 111988,
+                fabricationPerUnit: 760,
+                installationPerUnit: 440,
+                scaffoldingPerUnit: 160,
+                size: '32 Inch IR Touch'
+            },
+            'WM-43-IMP-IRT': {
+                category: 'Touch',
+                details: '43" IR touch wall mount display standee.',
+                partnerPrice: 114470,
+                endUserPrice: 148596,
+                fabricationPerUnit: 900,
+                installationPerUnit: 520,
+                scaffoldingPerUnit: 180,
+                size: '43 Inch IR Touch'
+            },
+            'TM-24-IPS': {
+                category: 'Totem',
+                details: '24" Totem IPS standee.',
+                partnerPrice: 32880,
+                endUserPrice: 43840,
+                fabricationPerUnit: 500,
+                installationPerUnit: 300,
+                scaffoldingPerUnit: 120,
+                size: '24 Inch'
+            },
+            'TM-32-IPS': {
+                category: 'Totem',
+                details: '32" Totem IPS standee.',
+                partnerPrice: 40800,
+                endUserPrice: 54400,
+                fabricationPerUnit: 550,
+                installationPerUnit: 330,
+                scaffoldingPerUnit: 140,
+                size: '32 Inch'
+            },
+            'TM-43-IPS-FHD': {
+                category: 'Totem',
+                details: '43" FHD Totem IPS standee.',
+                partnerPrice: 57600,
+                endUserPrice: 76800,
+                fabricationPerUnit: 700,
+                installationPerUnit: 420,
+                scaffoldingPerUnit: 170,
+                size: '43 Inch FHD'
+            },
+            'TM-43-IPS-4K': {
+                category: 'Totem',
+                details: '43" 4K Totem IPS standee.',
+                partnerPrice: 76800,
+                endUserPrice: 102400,
+                fabricationPerUnit: 750,
+                installationPerUnit: 450,
+                scaffoldingPerUnit: 180,
+                size: '43 Inch 4K'
+            },
+            'TM-50-IPS-4K': {
+                category: 'Totem',
+                details: '50" 4K Totem IPS standee.',
+                partnerPrice: 96000,
+                endUserPrice: 128000,
+                fabricationPerUnit: 850,
+                installationPerUnit: 520,
+                scaffoldingPerUnit: 200,
+                size: '50 Inch 4K'
+            },
+            'TM-50-IPS-C': {
+                category: 'Totem',
+                details: '50" Commercial Totem IPS standee.',
+                partnerPrice: 111600,
+                endUserPrice: 148800,
+                fabricationPerUnit: 950,
+                installationPerUnit: 560,
+                scaffoldingPerUnit: 220,
+                size: '50 Inch Commercial'
+            },
+            'TM-55-IPS-4K': {
+                category: 'Totem',
+                details: '55" 4K Totem IPS standee.',
+                partnerPrice: 103200,
+                endUserPrice: 137600,
+                fabricationPerUnit: 980,
+                installationPerUnit: 600,
+                scaffoldingPerUnit: 240,
+                size: '55 Inch 4K'
+            },
+            'TM-65-IPS-4K': {
+                category: 'Totem',
+                details: '65" 4K Totem IPS standee.',
+                partnerPrice: 138000,
+                endUserPrice: 184000,
+                fabricationPerUnit: 1100,
+                installationPerUnit: 650,
+                scaffoldingPerUnit: 260,
+                size: '65 Inch 4K'
+            },
+            'TM-75-IPS-4K': {
+                category: 'Totem',
+                details: '75" 4K Totem IPS standee.',
+                partnerPrice: 194400,
+                endUserPrice: 259200,
+                fabricationPerUnit: 1300,
+                installationPerUnit: 700,
+                scaffoldingPerUnit: 280,
+                size: '75 Inch 4K'
+            }
+        };
+
+        const LED_INSTALLATION_RATE_PER_SQFT = 400;
+
+        // LED controller (sending/receiving system) selection engine.
+        // Rules + specs are loaded from AV/led-controller-data.js (generated from
+        // AV/Controller_Selection_Rules.json + AV/Controller_Knowledge_Base.csv,
+        // per the formulas in AV/LED_Engineering_Formula_Documentation.md).
+        function getLedDimensionsFt() {
+            const height = parseFloat(ledHeight.value) || 0;
+            const width = parseFloat(ledWidth.value) || 0;
+            let heightFt = height, widthFt = width;
+            if (ledUnit.value === 'm') { heightFt *= 3.28084; widthFt *= 3.28084; }
+            else if (ledUnit.value === 'in') { heightFt /= 12; widthFt /= 12; }
+            return { widthFt, heightFt };
+        }
+
+        function pitchStringToMm(pitchStr) {
+            const n = parseFloat(String(pitchStr || '').replace(/[^0-9.]/g, ''));
+            return isFinite(n) && n > 0 ? n : 2.5;
+        }
+
+        function pixelPitchBand(pitchMm) {
+            if (pitchMm <= 1.25) return 'P0.9-P1.25';
+            if (pitchMm <= 2.5) return 'P1.53-P2.5';
+            if (pitchMm <= 5) return 'P3-P5';
+            return 'P6-P10';
+        }
+
+        function computeLedPixelSpec() {
+            const { widthFt, heightFt } = getLedDimensionsFt();
+            const widthMm = widthFt * 304.8;
+            const heightMm = heightFt * 304.8;
+            const model = ledModels[ledModelSelect.value];
+            const pitchMm = pitchStringToMm(model ? model.pitch : 'P2.5');
+            const horizontalPixels = Math.max(1, Math.round(widthMm / pitchMm));
+            const verticalPixels = Math.max(1, Math.round(heightMm / pitchMm));
+            const totalPixels = horizontalPixels * verticalPixels;
+            const pitchBand = pixelPitchBand(pitchMm);
+            const installationType = ledCategory.value === 'outdoor' ? 'Outdoor' : 'Indoor';
+            const controlMode = (ledControlMode && ledControlMode.value) || 'Synchronous';
+            const areaSqFt = getAreaSqFt();
+            return { widthFt, heightFt, widthMm, heightMm, pitchMm, horizontalPixels, verticalPixels, totalPixels, pitchBand, installationType, controlMode, areaSqFt };
+        }
+
+        function matchLedControllerRule(spec) {
+            const rules = window.LED_CONTROLLER_RULES || [];
+            for (const r of rules) {
+                const c = r.c;
+                if (spec.totalPixels <= c.gt || spec.totalPixels > c.lte) continue;
+                if (spec.horizontalPixels > c.w || spec.verticalPixels > c.h) continue;
+                if (c.pb !== 'Any' && c.pb !== spec.pitchBand) continue;
+                if (c.it !== 'Any' && c.it !== spec.installationType) continue;
+                if (c.cm && c.cm !== spec.controlMode) continue;
+                return r;
+            }
+            return null;
+        }
+
+        function getLedControllerSelection() {
+            const spec = computeLedPixelSpec();
+            const rule = matchLedControllerRule(spec);
+
+            let redundant = false;
+            let redundancyReason = '';
+            const redundancyMode = ledRedundancy ? ledRedundancy.value : 'auto';
+            if (redundancyMode === 'yes') {
+                redundant = true;
+                redundancyReason = 'Manually forced by user.';
+            } else if (redundancyMode !== 'no') {
+                if (spec.installationType === 'Outdoor' && spec.areaSqFt > 400) {
+                    redundant = true;
+                    redundancyReason = 'Outdoor display area exceeds 400 sq ft (weather-exposed, high-visibility asset).';
+                } else if (spec.totalPixels > 4000000) {
+                    redundant = true;
+                    redundancyReason = 'Total pixel count exceeds 4,000,000 px (large commercial wall).';
+                }
+            }
+
+            if (!rule) {
+                return {
+                    matched: false, spec, redundant, redundancyReason,
+                    name: 'No controller match found', brand: '', model: '', series: '',
+                    baseUnits: 0, units: 0, unitPrice: 0, totalPrice: 0, confidence: 0,
+                    reason: 'Display exceeds the engineering dataset range. Consult NANTA engineering for a custom multi-controller cascade.',
+                    specSheet: null
+                };
+            }
+
+            const baseUnits = rule.rec.units || 1;
+            const units = redundant ? baseUnits * 2 : baseUnits;
+            const key = `${rule.rec.brand} ${rule.rec.model}`;
+            const specSheet = (window.LED_CONTROLLER_SPECS && window.LED_CONTROLLER_SPECS[key]) || null;
+            const unitPrice = specSheet ? (specSheet.priceInr || Math.round(specSheet.msrpUsd * 84)) : 0;
+            const totalPrice = unitPrice * units;
+
+            return {
+                matched: true, spec, redundant, redundancyReason,
+                name: key, brand: rule.rec.brand, model: rule.rec.model, series: rule.rec.series,
+                baseUnits, units, unitPrice, totalPrice, confidence: rule.conf, reason: rule.reason, specSheet
+            };
+        }
+
+        const ledModels = {
+            'Indoor SMD P2.5': {
+                details: 'Indoor COB P1.2 panel with B2B/B2C pricing.',
+                category: 'indoor',
+                pitch: 'P2.5',
+                b2bPricePerSqFt: 6500,
+                b2cPricePerSqFt: 8125,
+                installationPerSqFt: 75,
+                fabricationPerSqFt: 50,
+                scaffoldingFixed: 300
+            },
+            'Indoor SMDP3': {
+                details: 'Indoor SMD P3 panel with B2B/B2C pricing.',
+                category: 'indoor',
+                pitch: 'P3',
+                b2bPricePerSqFt: 5500,
+                b2cPricePerSqFt: 6875,
+                installationPerSqFt: 70,
+                fabricationPerSqFt: 45,
+                scaffoldingFixed: 300
+            },
+            'Indoor SMD P4': {
+                details: 'Indoor SMD P4 panel with B2B/B2C pricing.',
+                category: 'indoor',
+                pitch: 'P4',
+                b2bPricePerSqFt: 4200,
+                b2cPricePerSqFt: 5250,
+                installationPerSqFt: 65,
+                fabricationPerSqFt: 40,
+                scaffoldingFixed: 300
+            },
+            'Outdoor P2.5': {
+                details: 'Outdoor SMD P2.5 panel with B2B/B2C pricing.',
+                category: 'outdoor',
+                pitch: 'P2.5',
+                b2bPricePerSqFt: 8000,
+                b2cPricePerSqFt: 10000,
+                installationPerSqFt: 90,
+                fabricationPerSqFt: 60,
+                scaffoldingFixed: 400
+            },
+            'Outdoor P3': {
+                details: 'Outdoor SMD P3 panel with B2B/B2C pricing.',
+                category: 'outdoor',
+                pitch: 'P3',
+                b2bPricePerSqFt: 6000,
+                b2cPricePerSqFt: 7500,
+                installationPerSqFt: 85,
+                fabricationPerSqFt: 55,
+                scaffoldingFixed: 400
+            },
+            'Outdoor P4': {
+                details: 'Outdoor SMD P4 panel with B2B/B2C pricing.',
+                category: 'outdoor',
+                pitch: 'P4',
+                b2bPricePerSqFt: 4600,
+                b2cPricePerSqFt: 5750,
+                installationPerSqFt: 80,
+                fabricationPerSqFt: 50,
+                scaffoldingFixed: 400
+            },
+            'Outdoor P5': {
+                details: 'Outdoor SMD P5 panel with B2B/B2C pricing.',
+                category: 'outdoor',
+                pitch: 'P5',
+                b2bPricePerSqFt: 4500,
+                b2cPricePerSqFt: 5625,
+                installationPerSqFt: 80,
+                fabricationPerSqFt: 50,
+                scaffoldingFixed: 400
+            },
+            'Outdoor P6': {
+                details: 'Outdoor SMD P6 panel with B2B/B2C pricing.',
+                category: 'outdoor',
+                pitch: 'P6',
+                b2bPricePerSqFt: 4200,
+                b2cPricePerSqFt: 5250,
+                installationPerSqFt: 78,
+                fabricationPerSqFt: 48,
+                scaffoldingFixed: 400
+            },
+            'Outdoor P10': {
+                details: 'Outdoor SMD P10 panel with B2B/B2C pricing.',
+                category: 'outdoor',
+                pitch: 'P10',
+                b2bPricePerSqFt: 3800,
+                b2cPricePerSqFt: 4750,
+                installationPerSqFt: 75,
+                fabricationPerSqFt: 45,
+                scaffoldingFixed: 400
+            },
+            'INDOOR COB P1.86': {
+                details: 'Indoor COB P1.86 panel with B2B/B2C pricing.',
+                category: 'cob',
+                pitch: 'P1.86',
+                b2bPricePerSqFt: 13800,
+                b2cPricePerSqFt: 17250,
+                installationPerSqFt: 100,
+                fabricationPerSqFt: 70,
+                scaffoldingFixed: 450
+            },
+            'INDOOR COB P1.5': {
+                details: 'Indoor COB P1.5 panel with B2B/B2C pricing.',
+                category: 'cob',
+                pitch: 'P1.5',
+                b2bPricePerSqFt: 14800,
+                b2cPricePerSqFt: 18500,
+                installationPerSqFt: 105,
+                fabricationPerSqFt: 75,
+                scaffoldingFixed: 450
+            },
+            'INDOOR COB P1.2': {
+                details: 'Indoor COB P1.2 panel with B2B/B2C pricing.',
+                category: 'cob',
+                pitch: 'P1.2',
+                b2bPricePerSqFt: 15500,
+                b2cPricePerSqFt: 19375,
+                installationPerSqFt: 110,
+                fabricationPerSqFt: 80,
+                scaffoldingFixed: 450
+            },
+            'INDOOR SMD P1.83': {
+                details: 'Indoor SMD P1.83 panel with B2B/B2C pricing.',
+                category: 'smd',
+                pitch: 'P1.83',
+                b2bPricePerSqFt: 9500,
+                b2cPricePerSqFt: 11875,
+                installationPerSqFt: 90,
+                fabricationPerSqFt: 60,
+                scaffoldingFixed: 400
+            },
+            'INDOOR SMD P2': {
+                details: 'Indoor SMD P2 panel with B2B/B2C pricing.',
+                category: 'smd',
+                pitch: 'P2',
+                b2bPricePerSqFt: 8500,
+                b2cPricePerSqFt: 10625,
+                installationPerSqFt: 88,
+                fabricationPerSqFt: 58,
+                scaffoldingFixed: 400
+            }
+        };
+
+        // Sourced from AVpricelist.xlsx (Nanta Tech Price List - 2026). Distributor < Partner < Customer price.
+        const interactivePanelProducts = {
+            'NTA-IFP65-AI': {
+                name: '65" InfiniteView AI Panel',
+                description: 'NTA-IFP65-AI | 65" 4K UHD AI-Powered Interactive Flat Panel | Android 14 OS | 8GB RAM | 128GB Storage | Multi-Touch | Zero-Bonding Display | Nanta InfiniteView Series',
+                distributorPrice: 73125,
+                partnerPrice: 78250,
+                customerPrice: 93895,
+                image: 'av-assets/IFP-65-75.png'
+            },
+            'NTA-IFP75-AI': {
+                name: '75" InfiniteView AI Panel',
+                description: 'NTA-IFP75-AI | 75" 4K UHD AI-Powered Interactive Flat Panel | Android 14 OS | 8GB RAM | 128GB Storage | Multi-Touch | Zero-Bonding Display | Nanta InfiniteView Series',
+                distributorPrice: 86400,
+                partnerPrice: 92448,
+                customerPrice: 110940,
+                image: 'av-assets/IFP-65-75.png'
+            },
+            'NTA-IFP86-AI': {
+                name: '86" InfiniteView AI Panel',
+                description: 'NTA-IFP86-AI | 86" 4K UHD AI-Powered Interactive Flat Panel | Android 14 OS | 8GB RAM | 128GB Storage | Multi-Touch | Zero-Bonding Display | Nanta InfiniteView Series',
+                distributorPrice: 133650,
+                partnerPrice: 143010,
+                customerPrice: 171610,
+                image: 'av-assets/IFP-86-98.png'
+            },
+            'NTA-IFP98-AI': {
+                name: '98" InfiniteView AI Panel',
+                description: 'NTA-IFP98-AI | 98" 4K UHD AI-Powered Interactive Flat Panel | Android 14 OS | 8GB RAM | 128GB Storage | Multi-Touch | Zero-Bonding Display | Nanta InfiniteView Series',
+                distributorPrice: 445000,
+                partnerPrice: 476150,
+                customerPrice: 571380,
+                image: 'av-assets/IFP-86-98.png'
+            }
+        };
+
+        const avCameraProducts = {
+            'NT-4K-CC-8X': {
+                modelTag: '4K-CC-8X',
+                category: 'Webcam',
+                description: 'Video Camera, 4K Business Webcam, USB 3.0,120 degree HFOV, Built in Microphone,  NT-4K-CC-8X',
+                distributorPrice: 23700,
+                partnerPrice: 26485,
+                customerPrice: 30455,
+                image: 'av-assets/NT-4K-CC-8X.jpeg'
+            },
+            'NT-EC-VB360-4K': {
+                modelTag: 'EC-VB360-4K',
+                category: 'Video Bar',
+                description: '4K BYOM 360°, Panoramic Camera, All-In-One Tabletop camera for Huddle Rooms. Four ultra-wide-angle lenses for 360° views, six-array microphones, and full-range speakers, with built-in AI-powered framing and noise cancellation. One-cable USB-C connection, BYOM mode.',
+                distributorPrice: 90000,
+                partnerPrice: 103500,
+                customerPrice: 120000,
+                image: 'av-assets/NT-EC-VB360-4K.png'
+            },
+            'NT-EC-VB-4K': {
+                modelTag: 'EC-VB-4K',
+                category: 'Video Bar',
+                description: 'Conferencing Device (ADPM), 4K Video bar with 6X Digital Zoom Camera with AI tracking Features, NT-EC-VB-4K',
+                distributorPrice: 85105,
+                partnerPrice: 91800,
+                customerPrice: 100980,
+                image: 'av-assets/NT-EC-VB-4K.png',
+                accessory: {
+                    name: 'Wireless Dongle for BYOD, Compatible with NT-EC-VB-4K',
+                    distributorPrice: 6100,
+                    partnerPrice: 6900,
+                    customerPrice: 8280
+                }
+            },
+            'NT-M2000S': {
+                modelTag: 'M2000S',
+                category: 'Video Bar',
+                description: 'Conferencing Device (ADPM), 12X optical zoom 4K Dual-Lens Video Bar with AI tracking features, NT-M2000S.',
+                distributorPrice: 165751,
+                partnerPrice: 185641,
+                customerPrice: 213490,
+                image: 'av-assets/NT-M2000S.png',
+                accessory: {
+                    name: 'Wireless Dongle for BYOD, Compatible with NT-M2000s',
+                    distributorPrice: 9100,
+                    partnerPrice: 10350,
+                    customerPrice: 12420
+                }
+            },
+            'NT-EC-HD-12X': {
+                modelTag: 'EC-HD-12X',
+                category: 'PTZ',
+                description: 'Conferencing Device (ADPM), HD Video Camera with Presenter Tracking, 12X Optical Zoom, HDMI+3G-SDI+RJ45+USB3.0, NT-EC-HD-12X',
+                distributorPrice: 69945,
+                partnerPrice: 75540,
+                customerPrice: 83095,
+                image: 'av-assets/NT-EC-HD-12X.png'
+            },
+            'NT-EC-HD-30X': {
+                modelTag: 'EC-HD-30X',
+                category: 'PTZ',
+                description: 'Conferencing Device (ADPM), HD Video Camera with Presenter Tracking, 30X Optical Zoom, HDMI+3G-SDI+RJ45+USB3.0, NT-EC-HD-30X',
+                distributorPrice: 79110,
+                partnerPrice: 85320,
+                customerPrice: 93852,
+                image: 'av-assets/NT-EC-HD-30X.png'
+            },
+            'NT-VX71UVS': {
+                modelTag: 'VX71UVS',
+                category: 'PTZ',
+                description: '4K video conferencing camera, DC 12V/PoE, 1/2.5" CMOS, 8.51MP, 12x optical zoom, 71° HFOV, 4K/30/25 & 1080p/30/25. USB + HDMI + RJ45, line-in, RS232, RS485, gesture control.',
+                distributorPrice: 84650,
+                partnerPrice: 94805,
+                customerPrice: 109025,
+                image: 'av-assets/NT-VX71UVS.jpeg'
+            },
+            'NT-VX630AL': {
+                modelTag: 'VX630AL',
+                category: 'PTZ',
+                description: 'Conferencing Device (ADPM), 4K PTZ camera, 1/1.8" sensor, 4K60, 30x optical zoom, AI tracking. SDI + HDMI + LAN + USB 2.0.',
+                distributorPrice: 127500,
+                partnerPrice: 142805,
+                customerPrice: 164225,
+                image: 'av-assets/NT-VX630AL.png'
+            },
+            'NT-M702A/C': {
+                modelTag: 'M702A/C',
+                category: 'Microphone',
+                description: 'USB microphone, PoE cascading, black.',
+                distributorPrice: 31695,
+                partnerPrice: 34230,
+                customerPrice: 37651,
+                image: 'av-assets/NT-M702AC.png'
+            },
+            'NT-A10W': {
+                modelTag: 'A10W',
+                category: 'Mic/Speaker',
+                description: 'USB speakerphone with full range speaker and microphone, range up to 10 meters, with wireless dongle connectivity.',
+                distributorPrice: 73520,
+                partnerPrice: 82345,
+                customerPrice: 94695,
+                image: 'av-assets/NT-A10W.png'
+            }
+        };
+
+        // AV Cables (InfiniteLink series). Distributor < Partner < Customer price.
+        const CABLE_SERIES = {
+            'HAA4K': { name: 'InfiniteLink HDMI 2.0 AOC (Type-A to Type-A, 4K)', image: 'av-assets/cable-hdmi-aoc-aa.png' },
+            'HAD4K': { name: 'InfiniteLink HDMI 2.0 AOC (Type-A to Type-D Detachable, 4K)', image: 'av-assets/cable-hdmi-aoc-ad.png' },
+            'HAA8K': { name: 'InfiniteLink HDMI 2.1 AOC (Type-A to Type-A, 8K)', image: 'av-assets/cable-hdmi21-aoc-aa.png' },
+            'HCA4K': { name: 'InfiniteLink HDMI 2.0 Copper (Type-A to Type-A, 4K)', image: 'av-assets/cable-hdmi-copper-4k.png' },
+            'HCA8K': { name: 'InfiniteLink HDMI 2.1 Copper (Type-A to Type-A, 8K)', image: 'av-assets/cable-hdmi-copper-8k.png' },
+            'UAF31': { name: 'InfiniteLink USB 3.1 AOC (Type-A Male to Type-A Female)', image: 'av-assets/cable-usb31-af.png' },
+            'UAC31': { name: 'InfiniteLink USB 3.1 AOC (Type-A Male to Type-C)', image: 'av-assets/cable-usb31-ac.png' },
+            'UCC31': { name: 'InfiniteLink USB 3.1 AOC (Type-C to Type-C)', image: 'av-assets/cable-usb31-cc.png' }
+        };
+
+        const cableProducts = {
+            'NTA-HAA4K-005': { series: 'HAA4K', length: '5M', lengthMeters: 5, description: 'NTA-HAA4K-005 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 5520, partnerPrice: 7176, customerPrice: 10350 },
+            'NTA-HAA4K-010': { series: 'HAA4K', length: '10M', lengthMeters: 10, description: 'NTA-HAA4K-010 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 10 Meter | Nanta InfiniteLink Series', distributorPrice: 6240, partnerPrice: 8112, customerPrice: 11700 },
+            'NTA-HAA4K-015': { series: 'HAA4K', length: '15M', lengthMeters: 15, description: 'NTA-HAA4K-015 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 15 Meter | Nanta InfiniteLink Series', distributorPrice: 6960, partnerPrice: 9048, customerPrice: 13050 },
+            'NTA-HAA4K-020': { series: 'HAA4K', length: '20M', lengthMeters: 20, description: 'NTA-HAA4K-020 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 20 Meter | Nanta InfiniteLink Series', distributorPrice: 8294.4, partnerPrice: 10782.72, customerPrice: 15552 },
+            'NTA-HAA4K-025': { series: 'HAA4K', length: '25M', lengthMeters: 25, description: 'NTA-HAA4K-025 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 25 Meter | Nanta InfiniteLink Series', distributorPrice: 9072, partnerPrice: 11793.6, customerPrice: 17010 },
+            'NTA-HAA4K-030': { series: 'HAA4K', length: '30M', lengthMeters: 30, description: 'NTA-HAA4K-030 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 30 Meter | Nanta InfiniteLink Series', distributorPrice: 9849.6, partnerPrice: 12804.48, customerPrice: 18468 },
+            'NTA-HAA4K-040': { series: 'HAA4K', length: '40M', lengthMeters: 40, description: 'NTA-HAA4K-040 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 40 Meter | Nanta InfiniteLink Series', distributorPrice: 11404.8, partnerPrice: 14826.24, customerPrice: 21384 },
+            'NTA-HAA4K-050': { series: 'HAA4K', length: '50M', lengthMeters: 50, description: 'NTA-HAA4K-050 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 50 Meter | Nanta InfiniteLink Series', distributorPrice: 12960, partnerPrice: 16848, customerPrice: 24300 },
+            'NTA-HAA4K-060': { series: 'HAA4K', length: '60M', lengthMeters: 60, description: 'NTA-HAA4K-060 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 60 Meter | Nanta InfiniteLink Series', distributorPrice: 14400, partnerPrice: 18720, customerPrice: 27000 },
+            'NTA-HAA4K-070': { series: 'HAA4K', length: '70M', lengthMeters: 70, description: 'NTA-HAA4K-070 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 70 Meter | Nanta InfiniteLink Series', distributorPrice: 16070.4, partnerPrice: 20891.52, customerPrice: 30132 },
+            'NTA-HAA4K-080': { series: 'HAA4K', length: '80M', lengthMeters: 80, description: 'NTA-HAA4K-080 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 80 Meter | Nanta InfiniteLink Series', distributorPrice: 26112, partnerPrice: 33945.6, customerPrice: 48960 },
+            'NTA-HAA4K-090': { series: 'HAA4K', length: '90M', lengthMeters: 90, description: 'NTA-HAA4K-090 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 90 Meter | Nanta InfiniteLink Series', distributorPrice: 28416, partnerPrice: 36940.8, customerPrice: 53280 },
+            'NTA-HAA4K-100': { series: 'HAA4K', length: '100M', lengthMeters: 100, description: 'NTA-HAA4K-100 | HDMI 2.0 Active Optical Cable | Type-A to Type-A | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 100 Meter | Nanta InfiniteLink Series', distributorPrice: 30720, partnerPrice: 39936, customerPrice: 57600 },
+            'NTA-HAD4K-005': { series: 'HAD4K', length: '5M', lengthMeters: 5, description: 'NTA-HAD4K-005 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 6720, partnerPrice: 8736, customerPrice: 12600 },
+            'NTA-HAD4K-010': { series: 'HAD4K', length: '10M', lengthMeters: 10, description: 'NTA-HAD4K-010 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 10 Meter | Nanta InfiniteLink Series', distributorPrice: 7440, partnerPrice: 9672, customerPrice: 13950 },
+            'NTA-HAD4K-015': { series: 'HAD4K', length: '15M', lengthMeters: 15, description: 'NTA-HAD4K-015 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 15 Meter | Nanta InfiniteLink Series', distributorPrice: 8160, partnerPrice: 10608, customerPrice: 15300 },
+            'NTA-HAD4K-020': { series: 'HAD4K', length: '20M', lengthMeters: 20, description: 'NTA-HAD4K-020 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 20 Meter | Nanta InfiniteLink Series', distributorPrice: 9590.4, partnerPrice: 12467.52, customerPrice: 17982 },
+            'NTA-HAD4K-025': { series: 'HAD4K', length: '25M', lengthMeters: 25, description: 'NTA-HAD4K-025 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 25 Meter | Nanta InfiniteLink Series', distributorPrice: 10368, partnerPrice: 13478.4, customerPrice: 19440 },
+            'NTA-HAD4K-030': { series: 'HAD4K', length: '30M', lengthMeters: 30, description: 'NTA-HAD4K-030 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 30 Meter | Nanta InfiniteLink Series', distributorPrice: 11145.6, partnerPrice: 14489.28, customerPrice: 20898 },
+            'NTA-HAD4K-040': { series: 'HAD4K', length: '40M', lengthMeters: 40, description: 'NTA-HAD4K-040 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 40 Meter | Nanta InfiniteLink Series', distributorPrice: 12700.8, partnerPrice: 16511.04, customerPrice: 23814 },
+            'NTA-HAD4K-050': { series: 'HAD4K', length: '50M', lengthMeters: 50, description: 'NTA-HAD4K-050 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 50 Meter | Nanta InfiniteLink Series', distributorPrice: 14256, partnerPrice: 18532.8, customerPrice: 26730 },
+            'NTA-HAD4K-060': { series: 'HAD4K', length: '60M', lengthMeters: 60, description: 'NTA-HAD4K-060 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 60 Meter | Nanta InfiniteLink Series', distributorPrice: 14640, partnerPrice: 19032, customerPrice: 27450 },
+            'NTA-HAD4K-070': { series: 'HAD4K', length: '70M', lengthMeters: 70, description: 'NTA-HAD4K-070 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 70 Meter | Nanta InfiniteLink Series', distributorPrice: 17366.4, partnerPrice: 22576.32, customerPrice: 32562 },
+            'NTA-HAD4K-080': { series: 'HAD4K', length: '80M', lengthMeters: 80, description: 'NTA-HAD4K-080 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 80 Meter | Nanta InfiniteLink Series', distributorPrice: 28032, partnerPrice: 36441.6, customerPrice: 52560 },
+            'NTA-HAD4K-090': { series: 'HAD4K', length: '90M', lengthMeters: 90, description: 'NTA-HAD4K-090 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 90 Meter | Nanta InfiniteLink Series', distributorPrice: 30336, partnerPrice: 39436.8, customerPrice: 56880 },
+            'NTA-HAD4K-100': { series: 'HAD4K', length: '100M', lengthMeters: 100, description: 'NTA-HAD4K-100 | HDMI 2.0 Active Optical Cable | Type-A to Type-D (Detachable) | 4K@60Hz | 18Gbps | YUV 4:4:4 | EDID / HDCP 2.2 / HDR / ARC | OD 4.5mm Black PVC | 100 Meter | Nanta InfiniteLink Series', distributorPrice: 32640, partnerPrice: 42432, customerPrice: 61200 },
+            'NTA-HAA8K-005': { series: 'HAA8K', length: '5M', lengthMeters: 5, description: 'NTA-HAA8K-005 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 6840, partnerPrice: 8892, customerPrice: 12825 },
+            'NTA-HAA8K-010': { series: 'HAA8K', length: '10M', lengthMeters: 10, description: 'NTA-HAA8K-010 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 10 Meter | Nanta InfiniteLink Series', distributorPrice: 7680, partnerPrice: 9984, customerPrice: 14400 },
+            'NTA-HAA8K-015': { series: 'HAA8K', length: '15M', lengthMeters: 15, description: 'NTA-HAA8K-015 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 15 Meter | Nanta InfiniteLink Series', distributorPrice: 8520, partnerPrice: 11076, customerPrice: 15975 },
+            'NTA-HAA8K-020': { series: 'HAA8K', length: '20M', lengthMeters: 20, description: 'NTA-HAA8K-020 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 20 Meter | Nanta InfiniteLink Series', distributorPrice: 10108.8, partnerPrice: 13141.44, customerPrice: 18954 },
+            'NTA-HAA8K-025': { series: 'HAA8K', length: '25M', lengthMeters: 25, description: 'NTA-HAA8K-025 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 25 Meter | Nanta InfiniteLink Series', distributorPrice: 11016, partnerPrice: 14320.8, customerPrice: 20655 },
+            'NTA-HAA8K-030': { series: 'HAA8K', length: '30M', lengthMeters: 30, description: 'NTA-HAA8K-030 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 30 Meter | Nanta InfiniteLink Series', distributorPrice: 11923.2, partnerPrice: 15500.16, customerPrice: 22356 },
+            'NTA-HAA8K-040': { series: 'HAA8K', length: '40M', lengthMeters: 40, description: 'NTA-HAA8K-040 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 40 Meter | Nanta InfiniteLink Series', distributorPrice: 13737.6, partnerPrice: 17858.88, customerPrice: 25758 },
+            'NTA-HAA8K-050': { series: 'HAA8K', length: '50M', lengthMeters: 50, description: 'NTA-HAA8K-050 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 50 Meter | Nanta InfiniteLink Series', distributorPrice: 15552, partnerPrice: 20217.6, customerPrice: 29160 },
+            'NTA-HAA8K-060': { series: 'HAA8K', length: '60M', lengthMeters: 60, description: 'NTA-HAA8K-060 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 60 Meter | Nanta InfiniteLink Series', distributorPrice: 16080, partnerPrice: 20904, customerPrice: 30150 },
+            'NTA-HAA8K-070': { series: 'HAA8K', length: '70M', lengthMeters: 70, description: 'NTA-HAA8K-070 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 70 Meter | Nanta InfiniteLink Series', distributorPrice: 19180.8, partnerPrice: 24935.04, customerPrice: 35964 },
+            'NTA-HAA8K-080': { series: 'HAA8K', length: '80M', lengthMeters: 80, description: 'NTA-HAA8K-080 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 80 Meter | Nanta InfiniteLink Series', distributorPrice: 31104, partnerPrice: 40435.2, customerPrice: 58320 },
+            'NTA-HAA8K-090': { series: 'HAA8K', length: '90M', lengthMeters: 90, description: 'NTA-HAA8K-090 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 90 Meter | Nanta InfiniteLink Series', distributorPrice: 33792, partnerPrice: 43929.6, customerPrice: 63360 },
+            'NTA-HAA8K-100': { series: 'HAA8K', length: '100M', lengthMeters: 100, description: 'NTA-HAA8K-100 | HDMI 2.1 Active Optical Cable | Type-A to Type-A | 8K@60Hz | 48Gbps | YUV 4:4:4 | EDID / HDCP 2.3 / HDR / eARC | OD 4.5mm Black PVC | 100 Meter | Nanta InfiniteLink Series', distributorPrice: 36480, partnerPrice: 47424, customerPrice: 68400 },
+            'NTA-HCA4K-0005': { series: 'HCA4K', length: '0.5M', lengthMeters: 0.5, description: 'NTA-HCA4K-0005 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 6.2mm Black PVC | 0.5 Meter | Nanta InfiniteLink Series', distributorPrice: 301.44, partnerPrice: 391.87, customerPrice: 565.2 },
+            'NTA-HCA4K-001': { series: 'HCA4K', length: '1M', lengthMeters: 1, description: 'NTA-HCA4K-001 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 6.2mm Black PVC | 1 Meter | Nanta InfiniteLink Series', distributorPrice: 341.76, partnerPrice: 444.29, customerPrice: 640.8 },
+            'NTA-HCA4K-0015': { series: 'HCA4K', length: '1.5M', lengthMeters: 1.5, description: 'NTA-HCA4K-0015 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 6.2mm Black PVC | 1.5 Meter | Nanta InfiniteLink Series', distributorPrice: 380.16, partnerPrice: 494.21, customerPrice: 712.8 },
+            'NTA-HCA4K-002': { series: 'HCA4K', length: '2M', lengthMeters: 2, description: 'NTA-HCA4K-002 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 6.2mm Black PVC | 2 Meter | Nanta InfiniteLink Series', distributorPrice: 418.56, partnerPrice: 544.13, customerPrice: 784.8 },
+            'NTA-HCA4K-003': { series: 'HCA4K', length: '3M', lengthMeters: 3, description: 'NTA-HCA4K-003 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 6.2mm Black PVC | 3 Meter | Nanta InfiniteLink Series', distributorPrice: 497.28, partnerPrice: 646.46, customerPrice: 932.4 },
+            'NTA-HCA4K-004': { series: 'HCA4K', length: '4M', lengthMeters: 4, description: 'NTA-HCA4K-004 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 7.8mm Black PVC | 4 Meter | Nanta InfiniteLink Series', distributorPrice: 743.04, partnerPrice: 965.95, customerPrice: 1393.2 },
+            'NTA-HCA4K-005': { series: 'HCA4K', length: '5M', lengthMeters: 5, description: 'NTA-HCA4K-005 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 7.8mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 852.48, partnerPrice: 1108.22, customerPrice: 1598.4 },
+            'NTA-HCA4K-006': { series: 'HCA4K', length: '6M', lengthMeters: 6, description: 'NTA-HCA4K-006 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 7.8mm Black PVC | 6 Meter | Nanta InfiniteLink Series', distributorPrice: 967.68, partnerPrice: 1257.98, customerPrice: 1814.4 },
+            'NTA-HCA4K-007': { series: 'HCA4K', length: '7M', lengthMeters: 7, description: 'NTA-HCA4K-007 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 7.8mm Black PVC | 7 Meter | Nanta InfiniteLink Series', distributorPrice: 1063.68, partnerPrice: 1382.78, customerPrice: 1994.4 },
+            'NTA-HCA4K-0075': { series: 'HCA4K', length: '7.5M', lengthMeters: 7.5, description: 'NTA-HCA4K-0075 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 7.8mm Black PVC | 7.5 Meter | Nanta InfiniteLink Series', distributorPrice: 1117.44, partnerPrice: 1452.67, customerPrice: 2095.2 },
+            'NTA-HCA4K-008': { series: 'HCA4K', length: '8M', lengthMeters: 8, description: 'NTA-HCA4K-008 | HDMI 2.0 Copper Cable | Type-A to Type-A | 4K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4 | OD 7.8mm Black PVC | 8 Meter | Nanta InfiniteLink Series', distributorPrice: 1173.12, partnerPrice: 1525.06, customerPrice: 2199.6 },
+            'NTA-HCA8K-0005': { series: 'HCA8K', length: '0.5M', lengthMeters: 0.5, description: 'NTA-HCA8K-0005 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 6.2mm Black PVC | 0.5 Meter | Nanta InfiniteLink Series', distributorPrice: 345.6, partnerPrice: 449.28, customerPrice: 648 },
+            'NTA-HCA8K-001': { series: 'HCA8K', length: '1M', lengthMeters: 1, description: 'NTA-HCA8K-001 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 6.2mm Black PVC | 1 Meter | Nanta InfiniteLink Series', distributorPrice: 389.76, partnerPrice: 506.69, customerPrice: 730.8 },
+            'NTA-HCA8K-0015': { series: 'HCA8K', length: '1.5M', lengthMeters: 1.5, description: 'NTA-HCA8K-0015 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 6.2mm Black PVC | 1.5 Meter | Nanta InfiniteLink Series', distributorPrice: 433.92, partnerPrice: 564.1, customerPrice: 813.6 },
+            'NTA-HCA8K-002': { series: 'HCA8K', length: '2M', lengthMeters: 2, description: 'NTA-HCA8K-002 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 6.2mm Black PVC | 2 Meter | Nanta InfiniteLink Series', distributorPrice: 480, partnerPrice: 624, customerPrice: 900 },
+            'NTA-HCA8K-003': { series: 'HCA8K', length: '3M', lengthMeters: 3, description: 'NTA-HCA8K-003 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 6.2mm Black PVC | 3 Meter | Nanta InfiniteLink Series', distributorPrice: 568.32, partnerPrice: 738.82, customerPrice: 1065.6 },
+            'NTA-HCA8K-004': { series: 'HCA8K', length: '4M', lengthMeters: 4, description: 'NTA-HCA8K-004 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 7.8mm Black PVC | 4 Meter | Nanta InfiniteLink Series', distributorPrice: 848.64, partnerPrice: 1103.23, customerPrice: 1591.2 },
+            'NTA-HCA8K-005': { series: 'HCA8K', length: '5M', lengthMeters: 5, description: 'NTA-HCA8K-005 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 7.8mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 973.44, partnerPrice: 1265.47, customerPrice: 1825.2 },
+            'NTA-HCA8K-006': { series: 'HCA8K', length: '6M', lengthMeters: 6, description: 'NTA-HCA8K-006 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 7.8mm Black PVC | 6 Meter | Nanta InfiniteLink Series', distributorPrice: 1105.92, partnerPrice: 1437.7, customerPrice: 2073.6 },
+            'NTA-HCA8K-007': { series: 'HCA8K', length: '7M', lengthMeters: 7, description: 'NTA-HCA8K-007 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 7.8mm Black PVC | 7 Meter | Nanta InfiniteLink Series', distributorPrice: 1215.36, partnerPrice: 1579.97, customerPrice: 2278.8 },
+            'NTA-HCA8K-0075': { series: 'HCA8K', length: '7.5M', lengthMeters: 7.5, description: 'NTA-HCA8K-0075 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 7.8mm Black PVC | 7.5 Meter | Nanta InfiniteLink Series', distributorPrice: 1278.72, partnerPrice: 1662.34, customerPrice: 2397.6 },
+            'NTA-HCA8K-008': { series: 'HCA8K', length: '8M', lengthMeters: 8, description: 'NTA-HCA8K-008 | HDMI 2.1 Copper Cable | Type-A to Type-A | 8K@60Hz | Gold-Plated Connectors | Overmoulded Plugs | Backward Compatible HDMI 1.3/1.4/2.0 | OD 7.8mm Black PVC | 8 Meter | Nanta InfiniteLink Series', distributorPrice: 1340.16, partnerPrice: 1742.21, customerPrice: 2512.8 },
+            'NTA-UAF31-005': { series: 'UAF31', length: '5M', lengthMeters: 5, description: 'NTA-UAF31-005 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 9570, partnerPrice: 12441, customerPrice: 17943.75 },
+            'NTA-UAF31-010': { series: 'UAF31', length: '10M', lengthMeters: 10, description: 'NTA-UAF31-010 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 10 Meter | Nanta InfiniteLink Series', distributorPrice: 10340, partnerPrice: 13442, customerPrice: 19387.5 },
+            'NTA-UAF31-015': { series: 'UAF31', length: '15M', lengthMeters: 15, description: 'NTA-UAF31-015 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 15 Meter | Nanta InfiniteLink Series', distributorPrice: 11110, partnerPrice: 14443, customerPrice: 20831.25 },
+            'NTA-UAF31-020': { series: 'UAF31', length: '20M', lengthMeters: 20, description: 'NTA-UAF31-020 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 20 Meter | Nanta InfiniteLink Series', distributorPrice: 12540, partnerPrice: 16302, customerPrice: 23512.5 },
+            'NTA-UAF31-025': { series: 'UAF31', length: '25M', lengthMeters: 25, description: 'NTA-UAF31-025 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 25 Meter | Nanta InfiniteLink Series', distributorPrice: 13310, partnerPrice: 17303, customerPrice: 24956.25 },
+            'NTA-UAF31-030': { series: 'UAF31', length: '30M', lengthMeters: 30, description: 'NTA-UAF31-030 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 30 Meter | Nanta InfiniteLink Series', distributorPrice: 14080, partnerPrice: 18304, customerPrice: 26400 },
+            'NTA-UAF31-040': { series: 'UAF31', length: '40M', lengthMeters: 40, description: 'NTA-UAF31-040 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 40 Meter | Nanta InfiniteLink Series', distributorPrice: 15620, partnerPrice: 20306, customerPrice: 29287.5 },
+            'NTA-UAF31-050': { series: 'UAF31', length: '50M', lengthMeters: 50, description: 'NTA-UAF31-050 | USB 3.1 AM to AF Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 50 Meter | Nanta InfiniteLink Series', distributorPrice: 17160, partnerPrice: 22308, customerPrice: 32175 },
+            'NTA-UAC31-005': { series: 'UAC31', length: '5M', lengthMeters: 5, description: 'NTA-UAC31-005 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 9570, partnerPrice: 12441, customerPrice: 17943.75 },
+            'NTA-UAC31-010': { series: 'UAC31', length: '10M', lengthMeters: 10, description: 'NTA-UAC31-010 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 10 Meter | Nanta InfiniteLink Series', distributorPrice: 10340, partnerPrice: 13442, customerPrice: 19387.5 },
+            'NTA-UAC31-015': { series: 'UAC31', length: '15M', lengthMeters: 15, description: 'NTA-UAC31-015 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 15 Meter | Nanta InfiniteLink Series', distributorPrice: 11110, partnerPrice: 14443, customerPrice: 20831.25 },
+            'NTA-UAC31-020': { series: 'UAC31', length: '20M', lengthMeters: 20, description: 'NTA-UAC31-020 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 20 Meter | Nanta InfiniteLink Series', distributorPrice: 12540, partnerPrice: 16302, customerPrice: 23512.5 },
+            'NTA-UAC31-025': { series: 'UAC31', length: '25M', lengthMeters: 25, description: 'NTA-UAC31-025 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 25 Meter | Nanta InfiniteLink Series', distributorPrice: 13310, partnerPrice: 17303, customerPrice: 24956.25 },
+            'NTA-UAC31-030': { series: 'UAC31', length: '30M', lengthMeters: 30, description: 'NTA-UAC31-030 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 30 Meter | Nanta InfiniteLink Series', distributorPrice: 14080, partnerPrice: 18304, customerPrice: 26400 },
+            'NTA-UAC31-040': { series: 'UAC31', length: '40M', lengthMeters: 40, description: 'NTA-UAC31-040 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 40 Meter | Nanta InfiniteLink Series', distributorPrice: 15620, partnerPrice: 20306, customerPrice: 29287.5 },
+            'NTA-UAC31-050': { series: 'UAC31', length: '50M', lengthMeters: 50, description: 'NTA-UAC31-050 | USB 3.1 AM to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 50 Meter | Nanta InfiniteLink Series', distributorPrice: 17160, partnerPrice: 22308, customerPrice: 32175 },
+            'NTA-UCC31-005': { series: 'UCC31', length: '5M', lengthMeters: 5, description: 'NTA-UCC31-005 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 5 Meter | Nanta InfiniteLink Series', distributorPrice: 9570, partnerPrice: 12441, customerPrice: 17943.75 },
+            'NTA-UCC31-010': { series: 'UCC31', length: '10M', lengthMeters: 10, description: 'NTA-UCC31-010 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 10 Meter | Nanta InfiniteLink Series', distributorPrice: 10340, partnerPrice: 13442, customerPrice: 19387.5 },
+            'NTA-UCC31-015': { series: 'UCC31', length: '15M', lengthMeters: 15, description: 'NTA-UCC31-015 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 15 Meter | Nanta InfiniteLink Series', distributorPrice: 11110, partnerPrice: 14443, customerPrice: 20831.25 },
+            'NTA-UCC31-020': { series: 'UCC31', length: '20M', lengthMeters: 20, description: 'NTA-UCC31-020 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 20 Meter | Nanta InfiniteLink Series', distributorPrice: 12540, partnerPrice: 16302, customerPrice: 23512.5 },
+            'NTA-UCC31-025': { series: 'UCC31', length: '25M', lengthMeters: 25, description: 'NTA-UCC31-025 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 25 Meter | Nanta InfiniteLink Series', distributorPrice: 13310, partnerPrice: 17303, customerPrice: 24956.25 },
+            'NTA-UCC31-030': { series: 'UCC31', length: '30M', lengthMeters: 30, description: 'NTA-UCC31-030 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 30 Meter | Nanta InfiniteLink Series', distributorPrice: 14080, partnerPrice: 18304, customerPrice: 26400 },
+            'NTA-UCC31-040': { series: 'UCC31', length: '40M', lengthMeters: 40, description: 'NTA-UCC31-040 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 40 Meter | Nanta InfiniteLink Series', distributorPrice: 15620, partnerPrice: 20306, customerPrice: 29287.5 },
+            'NTA-UCC31-050': { series: 'UCC31', length: '50M', lengthMeters: 50, description: 'NTA-UCC31-050 | USB 3.1 Type-C to Type-C Active Optical Cable | 5Gbps | USB 3.0 Compatible | Backward Compatible USB 2.0/1.1 | Data Only | Windows & Mac | OD 4.8mm Black PVC | 50 Meter | Nanta InfiniteLink Series', distributorPrice: 17160, partnerPrice: 22308, customerPrice: 32175 }
+        };
+
+        // Sourced from RobotPricing.xlsx (Robot pricing - 2026). Distributor < Partner < Customer price.
+        const roboticsProducts = {
+            'T8': {
+                category: 'Delivery Robot',
+                description: 'Autonomous delivery / serving robot with multi-tier trays and interactive touchscreen face.',
+                distributorPrice: 644948,
+                partnerPrice: 773938,
+                customerPrice: 967423,
+                image: 'robot-assets/T8.png'
+            },
+            'T9': {
+                category: 'Delivery Robot',
+                description: 'Autonomous delivery / serving robot with multi-tier shelves for restaurant and hospitality use.',
+                distributorPrice: 644948,
+                partnerPrice: 773938,
+                customerPrice: 967423,
+                image: 'robot-assets/T9.png'
+            },
+            'T10': {
+                category: 'Delivery Robot',
+                description: 'Tall-format autonomous delivery robot with large touchscreen display and dual side trays.',
+                distributorPrice: 1002240,
+                partnerPrice: 1202688,
+                customerPrice: 1503360,
+                image: 'robot-assets/T10-T11.png'
+            },
+            'T11': {
+                category: 'Delivery Robot',
+                description: 'Tall-format autonomous delivery robot with large touchscreen display and dual side trays (higher-capacity variant).',
+                distributorPrice: 890880,
+                partnerPrice: 1069056,
+                customerPrice: 1336320,
+                image: 'robot-assets/T10-T11.png'
+            },
+            'W3': {
+                category: 'Service Robot',
+                description: 'Nanta W3 autonomous service robot.',
+                distributorPrice: 1074915,
+                partnerPrice: 1289898,
+                customerPrice: 1612372,
+                image: ''
+            },
+            'C30': {
+                category: 'Cleaning Robot',
+                description: 'Autonomous floor cleaning robot with voice interaction display and dual rotating brushes.',
+                distributorPrice: 863555,
+                partnerPrice: 1036266,
+                customerPrice: 1295333,
+                image: 'robot-assets/C30.png'
+            },
+            'C40': {
+                category: 'Cleaning Robot',
+                description: 'Autonomous commercial floor scrubber robot with side brushes and squeegee.',
+                distributorPrice: 1447680,
+                partnerPrice: 1737216,
+                customerPrice: 2171520,
+                image: 'robot-assets/C40.png'
+            },
+            'C55': {
+                category: 'Cleaning Robot',
+                description: 'Autonomous commercial floor scrubber robot, higher-capacity variant with side brushes and squeegee.',
+                distributorPrice: 2182656,
+                partnerPrice: 2619187,
+                customerPrice: 3273984,
+                image: 'robot-assets/C55.png'
+            },
+            'S100': {
+                category: 'Transport Robot',
+                description: 'Autonomous mobile transport robot (AMR) with flatbed top and touchscreen control panel.',
+                distributorPrice: 1186489,
+                partnerPrice: 1423787,
+                customerPrice: 1779733,
+                image: 'robot-assets/S100-S300.png'
+            },
+            'S300': {
+                category: 'Transport Robot',
+                description: 'Autonomous mobile transport robot (AMR), higher payload variant with flatbed top and touchscreen control panel.',
+                distributorPrice: 1294351,
+                partnerPrice: 1553221,
+                customerPrice: 1941527,
+                image: 'robot-assets/S100-S300.png'
+            },
+            'ATV3': {
+                category: 'Reception Robot',
+                description: 'Autonomous reception / greeting robot with front-facing interactive display.',
+                distributorPrice: 801910,
+                partnerPrice: 922197,
+                customerPrice: 1152746,
+                image: 'robot-assets/ATV3.png'
+            },
+            'AMT 1': {
+                category: 'Outdoor Sweeper Robot',
+                description: 'Autonomous outdoor sweeping robot with rotating side brushes and beacon light.',
+                distributorPrice: 1904175,
+                partnerPrice: 2189801,
+                customerPrice: 2737252,
+                image: 'robot-assets/AMT1.png'
+            }
+        };
+
+        // Tier prices are [1-25, 26-60, 61-100, 101-500, 500+] cameras, in Rs per camera per year.
+        const aiAnalytics = [
+            { category: 'Basic', name: 'People Count', tiers: [7000, 6300, 5600, 4900, 4200], desc: 'Counts the number of people entering, exiting, or present in an area.' },
+            { category: 'Basic', name: 'Crowd Count', tiers: [8000, 7200, 6400, 5600, 4800], desc: 'Estimates crowd density and monitors overcrowding situations.' },
+            { category: 'Basic', name: 'Person Tracking', tiers: [9000, 8100, 7200, 6300, 5400], desc: "Tracks a person's movement across one or multiple camera views." },
+            { category: 'Basic', name: 'Object Detection', tiers: [7000, 6300, 5600, 4900, 4200], desc: 'Detects and identifies predefined objects in the camera view.' },
+            { category: 'Basic', name: 'Vehicle Count', tiers: [7000, 6300, 5600, 4900, 4200], desc: 'Counts vehicles entering, exiting, or passing through a location.' },
+            { category: 'Basic', name: 'Camera Tampering', tiers: [6000, 5400, 4800, 4200, 3600], desc: 'Detects camera obstruction, movement, defocus, or tampering attempts.' },
+            { category: 'Basic', name: 'Footfall Analytics', tiers: [7500, 6750, 6000, 5250, 4500], desc: 'Measures visitor traffic patterns and peak activity periods.' },
+            { category: 'Security', name: 'Intrusion Detection', tiers: [12000, 10800, 9600, 8400, 7200], desc: 'Detects unauthorized entry into restricted or protected zones.' },
+            { category: 'Security', name: 'Loitering Detection', tiers: [9000, 8100, 7200, 6300, 5400], desc: 'Identifies individuals staying in a designated area longer than allowed.' },
+            { category: 'Security', name: 'Unattended Object', tiers: [11000, 9900, 8800, 7700, 6600], desc: 'Detects bags, packages, or objects left unattended for a specified time.' },
+            { category: 'Security', name: 'Person Collapse', tiers: [14000, 12600, 11200, 9800, 8400], desc: 'Detects a person falling, collapsing, or remaining motionless on the ground.' },
+            { category: 'Security', name: 'Fight Detection', tiers: [16000, 14400, 12800, 11200, 9600], desc: 'Identifies physical altercations and aggressive human behavior.' },
+            { category: 'Security', name: 'Theft Detection', tiers: [16000, 14400, 12800, 11200, 9600], desc: 'Detects suspicious object removal or potential theft activities.' },
+            { category: 'Security', name: 'Violence Detection', tiers: [16000, 14400, 12800, 11200, 9600], desc: 'Recognizes violent actions and abnormal aggressive behavior.' },
+            { category: 'Security', name: 'Weapon Detection', tiers: [28000, 25200, 22400, 19600, 16800], desc: 'Detects visible weapons such as guns, knives, or other dangerous objects.' },
+            { category: 'Security', name: 'Riot Detection', tiers: [30000, 27000, 24000, 21000, 18000], desc: 'Identifies crowd aggression, unrest, and large-scale disturbances.' },
+            { category: 'Security', name: 'Stone Pelting', tiers: [16000, 14400, 12800, 11200, 9600], desc: 'Detects stone-throwing or projectile-based violent activities.' },
+            { category: 'Face', name: 'Face Recognition', tiers: [25000, 22500, 20000, 17500, 15000], desc: 'Identifies and matches faces against registered databases or watchlists.' },
+            { category: 'Face', name: 'Face Search', tiers: [18000, 16200, 14400, 12600, 10800], desc: 'Searches and locates specific individuals from recorded video footage.' },
+            { category: 'Face', name: 'Searchable Attributes', tiers: [15000, 13500, 12000, 10500, 9000], desc: 'Searches people using attributes such as age, gender, clothing, or accessories.' },
+            { category: 'Face', name: 'No Face Mask', tiers: [6000, 5400, 4800, 4200, 3600], desc: 'Detects individuals not wearing face masks in monitored areas.' },
+            { category: 'Face', name: 'Emotion Detection', tiers: [9000, 8100, 7200, 6300, 5400], desc: 'Analyzes facial expressions to identify emotional states.' },
+            { category: 'Vehicle', name: 'ANPR', tiers: [24000, 21600, 19200, 16800, 14400], desc: 'Automatically captures and recognizes vehicle license plate numbers.' },
+            { category: 'Vehicle', name: 'Vehicle Make/Model', tiers: [14000, 12600, 11200, 9800, 8400], desc: 'Identifies vehicle make, model, and color information.' },
+            { category: 'Vehicle', name: 'Speed Detection', tiers: [16000, 14400, 12800, 11200, 9600], desc: 'Estimates and monitors vehicle speed in real time.' },
+            { category: 'Vehicle', name: 'Wrong Parking', tiers: [14000, 12600, 11200, 9800, 8400], desc: 'Detects vehicles parked in unauthorized or restricted locations.' },
+            { category: 'Vehicle', name: 'No Helmet', tiers: [14000, 12600, 11200, 9800, 8400], desc: 'Detects two-wheeler riders not wearing helmets.' },
+            { category: 'Vehicle', name: 'Triple Rider', tiers: [14000, 12600, 11200, 9800, 8400], desc: 'Detects more than two riders on a two-wheeler.' },
+            { category: 'Vehicle', name: 'No Seatbelt', tiers: [14000, 12600, 11200, 9800, 8400], desc: 'Detects drivers or passengers not wearing seatbelts.' },
+            { category: 'Vehicle', name: 'Mobile While Driving', tiers: [15000, 13500, 12000, 10500, 9000], desc: 'Detects drivers using mobile phones while driving.' },
+            { category: 'Vehicle', name: 'RLVD', tiers: [22000, 19800, 17600, 15400, 13200], desc: 'Detects vehicles violating red traffic signals.' },
+            { category: 'Vehicle', name: 'Parking Management', tiers: [22000, 19800, 17600, 15400, 13200], desc: 'Monitors parking occupancy and available parking spaces.' },
+            { category: 'Vehicle', name: 'Congestion Detection', tiers: [14000, 12600, 11200, 9800, 8400], desc: 'Detects traffic congestion and abnormal vehicle density.' },
+            { category: 'Industrial / Safety', name: 'Fire & Smoke', tiers: [24000, 21600, 19200, 16800, 14400], desc: 'Detects early signs of fire and smoke for rapid response.' },
+            { category: 'Industrial / Safety', name: 'PPE Detection', tiers: [16000, 14400, 12800, 11200, 9600], desc: 'Detects whether workers are wearing required safety equipment such as helmets, vests, and gloves.' },
+            { category: 'Industrial / Safety', name: 'Vandalism Detection', tiers: [15000, 13500, 12000, 10500, 9000], desc: 'Detects deliberate damage or destruction of property and assets.' },
+            { category: 'Industrial / Safety', name: 'Garbage Detection', tiers: [10000, 9000, 8000, 7000, 6000], desc: 'Identifies garbage accumulation in unauthorized locations.' },
+            { category: 'Industrial / Safety', name: 'Inventory Detection', tiers: [13000, 11700, 10400, 9100, 7800], desc: 'Monitors stock levels and detects missing or low inventory.' },
+            { category: 'Industrial / Safety', name: 'Customer Footfall & Dwell Time', tiers: [9000, 8100, 7200, 6300, 5400], desc: 'Measures customer visits and the time spent in specific areas.' },
+            { category: 'Industrial / Safety', name: 'Person Gaze to Advertisement', tiers: [10000, 9000, 8000, 7000, 6000], desc: 'Measures customer attention toward advertisements or displays.' },
+            { category: 'Industrial / Safety', name: 'Proximity to Advertisement', tiers: [9000, 8100, 7200, 6300, 5400], desc: 'Tracks how closely customers approach promotional displays.' },
+            { category: 'Industrial / Safety', name: 'Accident Detection', tiers: [18000, 16200, 14400, 12600, 10800], desc: 'Detects vehicle collisions and road accidents in real time.' },
+            { category: 'Industrial / Safety', name: 'Social Distancing', tiers: [6000, 5400, 4800, 4200, 3600], desc: 'Monitors and measures compliance with social distancing guidelines.' },
+            { category: 'Industrial / Safety', name: 'Lone Woman Detection', tiers: [16000, 14400, 12800, 11200, 9600], desc: 'Identifies a woman alone in a monitored area for enhanced safety monitoring.' },
+            { category: 'Industrial / Safety', name: 'Woman Surrounded By Men', tiers: [18000, 16200, 14400, 12600, 10800], desc: 'Detects situations where a woman is surrounded by multiple individuals.' },
+            { category: 'Industrial / Safety', name: 'Human/Animal/Vehicle Classification', tiers: [9000, 8100, 7200, 6300, 5400], desc: 'Classifies detected objects as humans, animals, or vehicles.' },
+            { category: 'Industrial / Safety', name: 'Graffiti Detection', tiers: [13000, 11700, 10400, 9100, 7800], desc: 'Detects unauthorized writing, painting, or markings on property.' },
+            { category: 'Industrial / Safety', name: 'Person Climbing Barricade', tiers: [11000, 9900, 8800, 7700, 6600], desc: 'Detects individuals attempting to cross fences, walls, or barricades.' },
+            { category: 'Industrial / Safety', name: 'Person Waving', tiers: [9000, 8100, 7200, 6300, 5400], desc: 'Detects waving gestures that may indicate requests for attention or assistance.' }
+        ];
+
+        const AI_SLAB_LABELS = ['1–25 Cameras', '26–60 Cameras', '61–100 Cameras', '101–500 Cameras', '500+ Cameras'];
+
+        function getAiSlabIndex(cameraCount) {
+            if (cameraCount <= 25) return 0;
+            if (cameraCount <= 60) return 1;
+            if (cameraCount <= 100) return 2;
+            if (cameraCount <= 500) return 3;
+            return 4;
+        }
+
+        const domainSelect = document.getElementById('domainSelect');
+        const avDomainSection = document.getElementById('avDomainSection');
+        const roboticsSection = document.getElementById('roboticsSection');
+        const roboticsModelSelect = document.getElementById('roboticsModel');
+        const roboticsPriceTier = document.getElementById('roboticsPriceTier');
+        const roboticsQuantity = document.getElementById('roboticsQuantity');
+        const roboticsDetails = document.getElementById('roboticsDetails');
+        const roboticsPreview = document.getElementById('roboticsPreview');
+        const aiSection = document.getElementById('aiSection');
+        const aiCameraCount = document.getElementById('aiCameraCount');
+        const aiSlabLabel = document.getElementById('aiSlabLabel');
+        const aiFeatureList = document.getElementById('aiFeatureList');
+        const projectType = document.getElementById('projectType');
+        const standeeSection = document.getElementById('standeeSection');
+        const ledSection = document.getElementById('ledSection');
+        const standeeCategory = document.getElementById('standeeCategory');
+        const standeeModelSelect = document.getElementById('standeeModel');
+        const standeePriceTier = document.getElementById('standeePriceTier');
+        const standeeQuantity = document.getElementById('standeeQuantity');
+        const standeeDetails = document.getElementById('standeeDetails');
+        const standeePreview = document.getElementById('standeePreview');
+        const standeeInstallationPerUnit = document.getElementById('standeeInstallationPerUnit');
+        const standeeFabricationPerUnit = document.getElementById('standeeFabricationPerUnit');
+        const standeeScaffoldingPerUnit = document.getElementById('standeeScaffoldingPerUnit');
+        const ledHeight = document.getElementById('ledHeight');
+        const ledWidth = document.getElementById('ledWidth');
+        const ledUnit = document.getElementById('ledUnit');
+        const ledCategory = document.getElementById('ledCategory');
+        const ledModelSelect = document.getElementById('ledModel');
+        const ledPriceTier = document.getElementById('ledPriceTier');
+        const ledDetails = document.getElementById('ledDetails');
+        const ledControlMode = document.getElementById('ledControlMode');
+        const ledRedundancy = document.getElementById('ledRedundancy');
+        const ledControllerDetails = document.getElementById('ledControllerDetails');
+        const conferenceSection = document.getElementById('conferenceSection');
+        const conferenceModelSelect = document.getElementById('conferenceModel');
+        const conferencePriceTier = document.getElementById('conferencePriceTier');
+        const conferenceQuantity = document.getElementById('conferenceQuantity');
+        const conferenceDetails = document.getElementById('conferenceDetails');
+        const conferenceAccessoryRow = document.getElementById('conferenceAccessoryRow');
+        const conferenceAccessoryCheckbox = document.getElementById('conferenceAccessoryCheckbox');
+        const conferenceAccessoryLabel = document.getElementById('conferenceAccessoryLabel');
+        const conferencePreview = document.getElementById('conferencePreview');
+        const interactivePanelSection = document.getElementById('interactivePanelSection');
+        const ifpModelSelect = document.getElementById('ifpModel');
+        const ifpPriceTier = document.getElementById('ifpPriceTier');
+        const ifpQuantity = document.getElementById('ifpQuantity');
+        const ifpDetails = document.getElementById('ifpDetails');
+        const ifpPreview = document.getElementById('ifpPreview');
+        const cablesSection = document.getElementById('cablesSection');
+        const cableSeriesSelect = document.getElementById('cableSeriesSelect');
+        const cableModelSelect = document.getElementById('cableModel');
+        const cablePriceTier = document.getElementById('cablePriceTier');
+        const cableQuantity = document.getElementById('cableQuantity');
+        const cableDetails = document.getElementById('cableDetails');
+        const cablePreview = document.getElementById('cablePreview');
+        const extraCostFields = document.getElementById('extraCostFields');
+        const installationCost = document.getElementById('installationCost');
+        const fabricationCost = document.getElementById('fabricationCost');
+        const scaffoldingCost = document.getElementById('scaffoldingCost');
+        const scaffoldingCostRow = document.getElementById('scaffoldingCostRow');
+        const markupPercent = document.getElementById('markupPercent');
+        const calculateButton = document.getElementById('calculateButton');
+        const exportPdfButton = document.getElementById('exportPdfButton');
+        const resetButton = document.getElementById('resetButton');
+        const summaryGrid = document.getElementById('summaryGrid');
+        const quotationNumberInput = document.getElementById('quotationNumber');
+        const preparedByInput = document.getElementById('preparedBy');
+        const clientNameInput = document.getElementById('clientName');
+        const clientCompanyInput = document.getElementById('clientCompany');
+        const clientEmailInput = document.getElementById('clientEmail');
+        const clientPhoneInput = document.getElementById('clientPhone');
+        const clientAddressInput = document.getElementById('clientAddress');
+        const validityDaysInput = document.getElementById('validityDays');
+        const cartRowsContainer = document.getElementById('cartRows');
+        const addToQuoteButton = document.getElementById('addToQuoteButton');
+        const discountRowsContainer = document.getElementById('discountRows');
+        const addDiscountButton = document.getElementById('addDiscountButton');
+        const customProductRowsContainer = document.getElementById('customProductRows');
+        const addCustomProductButton = document.getElementById('addCustomProductButton');
+
+        let currentLineItems = [];
+        let currentTotals = { subtotal: 0, markup: 0, markupAmount: 0, discountTotal: 0, total: 0 };
+        let discounts = [];
+        let customProducts = [];
+        let cartItems = [];
+        let lastComputedItem = null;
+        let nextLineItemId = 1;
+
+        function getCurrentSelectionLabel() {
+            const domain = domainSelect.value;
+            if (domain === 'robotics') return `Robotics – ${roboticsModelSelect.value}`;
+            if (domain === 'ai') return `AI Video Analytics – ${aiCameraCount.value} cameras`;
+            if (domain === 'av') {
+                const pt = projectType.value;
+                if (pt === 'standee') return `Standee – ${standeeModelSelect.value}`;
+                if (pt === 'led') return `LED Display – ${ledModelSelect.value}`;
+                if (pt === 'conference') return `Conferencing – ${conferenceModelSelect.value}`;
+                if (pt === 'interactive-panel') return `Interactive Flat Panel – ${ifpModelSelect.value}`;
+                if (pt === 'cables') return `AV Cable – ${cableModelSelect.value}`;
+            }
+            return 'Product';
+        }
+
+        function renderCartRows() {
+            cartRowsContainer.innerHTML = '';
+            cartItems.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'line-item-row';
+                row.innerHTML = `
+                    <span style="flex:1;">${item.label}</span>
+                    <span>${formatMoney(item.subtotal)}</span>
+                    <button type="button" class="remove-item-btn" title="Remove product">×</button>
+                `;
+                row.querySelector('.remove-item-btn').addEventListener('click', () => {
+                    cartItems = cartItems.filter(p => p.id !== item.id);
+                    renderCartRows();
+                    calculateEstimate();
+                });
+                cartRowsContainer.appendChild(row);
+            });
+        }
+
+        function generateQuotationNumber() {
+            const now = new Date();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const yy = String(now.getFullYear()).slice(-2);
+            return `NT-${mm}${dd}${yy}/01`;
+        }
+
+        function createOption(value, label) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            return option;
+        }
+
+        function populateStandeeModels(category) {
+            standeeModelSelect.innerHTML = '';
+            const models = Object.keys(standeeModels).filter(key => standeeModels[key].category === category);
+            models.forEach(modelKey => {
+                standeeModelSelect.appendChild(createOption(modelKey, modelKey));
+            });
+            if (!standeeModelSelect.value && models.length) {
+                standeeModelSelect.value = models[0];
+            }
+        }
+
+        function populateLedModels(category) {
+            ledModelSelect.innerHTML = '';
+            const categoriesToShow = category === 'indoor' ? ['indoor', 'cob'] : [category];
+            const models = Object.keys(ledModels).filter(key => categoriesToShow.includes(ledModels[key].category));
+            models.forEach(model => {
+                ledModelSelect.appendChild(createOption(model, model));
+            });
+            if (!ledModelSelect.value && models.length) {
+                ledModelSelect.value = models[0];
+            }
+        }
+
+        function showSection() {
+            const domain = domainSelect.value;
+            avDomainSection.style.display = domain === 'av' ? 'block' : 'none';
+            roboticsSection.style.display = domain === 'robotics' ? 'block' : 'none';
+            aiSection.style.display = domain === 'ai' ? 'block' : 'none';
+            extraCostFields.style.display = domain === 'av' ? 'block' : 'none';
+
+            if (domain === 'av') {
+                const type = projectType.value;
+                standeeSection.style.display = type === 'standee' ? 'block' : 'none';
+                ledSection.style.display = type === 'led' ? 'block' : 'none';
+                conferenceSection.style.display = type === 'conference' ? 'block' : 'none';
+                interactivePanelSection.style.display = type === 'interactive-panel' ? 'block' : 'none';
+                cablesSection.style.display = type === 'cables' ? 'block' : 'none';
+                const noScaffolding = type === 'conference' || type === 'interactive-panel' || type === 'cables';
+                scaffoldingCostRow.style.display = noScaffolding ? 'none' : '';
+            }
+        }
+
+        function populateConferenceModels() {
+            conferenceModelSelect.innerHTML = '';
+            Object.keys(avCameraProducts).forEach(key => {
+                conferenceModelSelect.appendChild(createOption(key, `${key} – ${avCameraProducts[key].modelTag}`));
+            });
+        }
+
+        function updateConferenceDetails() {
+            const product = avCameraProducts[conferenceModelSelect.value];
+            if (!product) return;
+            conferenceDetails.value = `${product.description}\nModel: ${product.modelTag}\nCategory: ${product.category || ''}`;
+            if (product.accessory) {
+                conferenceAccessoryRow.style.display = 'flex';
+                conferenceAccessoryLabel.textContent = product.accessory.name;
+            } else {
+                conferenceAccessoryRow.style.display = 'none';
+                conferenceAccessoryCheckbox.checked = false;
+            }
+            if (conferencePreview && product.image) {
+                conferencePreview.src = product.image;
+                conferencePreview.alt = `${conferenceModelSelect.value} preview`;
+            }
+        }
+
+        function populateIfpModels() {
+            ifpModelSelect.innerHTML = '';
+            Object.keys(interactivePanelProducts).forEach(key => {
+                ifpModelSelect.appendChild(createOption(key, `${key} – ${interactivePanelProducts[key].name}`));
+            });
+        }
+
+        function updateIfpDetails() {
+            const product = interactivePanelProducts[ifpModelSelect.value];
+            if (!product) return;
+            ifpDetails.value = `${product.description}`;
+            if (ifpPreview) {
+                ifpPreview.src = product.image;
+                ifpPreview.alt = `${ifpModelSelect.value} preview`;
+            }
+        }
+
+        function populateCableSeries() {
+            cableSeriesSelect.innerHTML = '';
+            Object.keys(CABLE_SERIES).forEach(key => {
+                cableSeriesSelect.appendChild(createOption(key, CABLE_SERIES[key].name));
+            });
+        }
+
+        function populateCableModels(seriesKey) {
+            cableModelSelect.innerHTML = '';
+            const models = Object.keys(cableProducts)
+                .filter(key => cableProducts[key].series === seriesKey)
+                .sort((a, b) => cableProducts[a].lengthMeters - cableProducts[b].lengthMeters);
+            models.forEach(modelKey => {
+                cableModelSelect.appendChild(createOption(modelKey, `${modelKey} – ${cableProducts[modelKey].length}`));
+            });
+            if (!cableModelSelect.value && models.length) {
+                cableModelSelect.value = models[0];
+            }
+        }
+
+        function updateCableDetails() {
+            const product = cableProducts[cableModelSelect.value];
+            if (!product) return;
+            const series = CABLE_SERIES[product.series];
+            cableDetails.value = `${product.description}`;
+            if (cablePreview && series) {
+                cablePreview.src = series.image;
+                cablePreview.alt = series.name;
+            }
+        }
+
+        function renderDiscountRows() {
+            discountRowsContainer.innerHTML = '';
+            discounts.forEach(discount => {
+                const row = document.createElement('div');
+                row.className = 'line-item-row';
+                row.innerHTML = `
+                    <input type="text" class="discount-label" placeholder="Discount label" value="${discount.label}" />
+                    <select class="discount-type">
+                        <option value="percent">% of total</option>
+                        <option value="flat">Flat amount (₹)</option>
+                    </select>
+                    <input type="number" class="discount-value" min="0" step="any" placeholder="Value" value="${discount.value}" />
+                    <button type="button" class="remove-item-btn" title="Remove discount">×</button>
+                `;
+                row.querySelector('.discount-type').value = discount.type;
+                row.querySelector('.discount-label').addEventListener('input', event => {
+                    discount.label = event.target.value;
+                    calculateEstimate();
+                });
+                row.querySelector('.discount-type').addEventListener('change', event => {
+                    discount.type = event.target.value;
+                    calculateEstimate();
+                });
+                row.querySelector('.discount-value').addEventListener('input', event => {
+                    discount.value = parseFloat(event.target.value) || 0;
+                    calculateEstimate();
+                });
+                row.querySelector('.remove-item-btn').addEventListener('click', () => {
+                    discounts = discounts.filter(d => d.id !== discount.id);
+                    renderDiscountRows();
+                    calculateEstimate();
+                });
+                discountRowsContainer.appendChild(row);
+            });
+        }
+
+        function renderCustomProductRows() {
+            customProductRowsContainer.innerHTML = '';
+            customProducts.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'line-item-row';
+                row.innerHTML = `
+                    <input type="text" class="custom-name" placeholder="Product name" value="${item.name}" />
+                    <input type="number" class="custom-qty" min="1" step="1" placeholder="Qty" value="${item.qty}" />
+                    <input type="number" class="custom-price" min="0" step="any" placeholder="Unit price (₹)" value="${item.price}" />
+                    <button type="button" class="remove-item-btn" title="Remove product">×</button>
+                `;
+                row.querySelector('.custom-name').addEventListener('input', event => {
+                    item.name = event.target.value;
+                    calculateEstimate();
+                });
+                row.querySelector('.custom-qty').addEventListener('input', event => {
+                    item.qty = Math.max(1, parseInt(event.target.value, 10) || 1);
+                    calculateEstimate();
+                });
+                row.querySelector('.custom-price').addEventListener('input', event => {
+                    item.price = parseFloat(event.target.value) || 0;
+                    calculateEstimate();
+                });
+                row.querySelector('.remove-item-btn').addEventListener('click', () => {
+                    customProducts = customProducts.filter(p => p.id !== item.id);
+                    renderCustomProductRows();
+                    calculateEstimate();
+                });
+                customProductRowsContainer.appendChild(row);
+            });
+        }
+
+        function populateRoboticsModels() {
+            roboticsModelSelect.innerHTML = '';
+            Object.keys(roboticsProducts).forEach(name => {
+                roboticsModelSelect.appendChild(createOption(name, `${name} – ${roboticsProducts[name].category}`));
+            });
+        }
+
+        function updateRoboticsDetails() {
+            const product = roboticsProducts[roboticsModelSelect.value];
+            if (!product) return;
+            roboticsDetails.value = `${product.description}\nCategory: ${product.category}`;
+            if (roboticsPreview) {
+                if (product.image) {
+                    roboticsPreview.style.display = '';
+                    roboticsPreview.src = product.image;
+                    roboticsPreview.alt = `${roboticsModelSelect.value} preview`;
+                } else {
+                    roboticsPreview.style.display = 'none';
+                }
+            }
+        }
+
+        function renderAiFeatureList() {
+            aiFeatureList.innerHTML = '';
+            let lastCategory = null;
+            aiAnalytics.forEach((feature, index) => {
+                if (feature.category !== lastCategory) {
+                    const heading = document.createElement('div');
+                    heading.className = 'ai-feature-category';
+                    heading.textContent = feature.category;
+                    aiFeatureList.appendChild(heading);
+                    lastCategory = feature.category;
+                }
+                const row = document.createElement('label');
+                row.className = 'ai-feature-item';
+                row.innerHTML = `
+                    <input type="checkbox" data-ai-index="${index}" />
+                    <div class="ai-feature-info">
+                        <div class="ai-feature-name">${feature.name}</div>
+                        <div class="ai-feature-desc">${feature.desc}</div>
+                    </div>
+                    <div class="ai-feature-price" data-ai-price="${index}"></div>
+                `;
+                aiFeatureList.appendChild(row);
+            });
+            updateAiFeaturePrices();
+        }
+
+        function updateAiFeaturePrices() {
+            const cameraCount = Math.max(1, parseInt(aiCameraCount.value, 10) || 1);
+            const slabIndex = getAiSlabIndex(cameraCount);
+            aiSlabLabel.textContent = AI_SLAB_LABELS[slabIndex];
+            aiAnalytics.forEach((feature, index) => {
+                const priceEl = aiFeatureList.querySelector(`[data-ai-price="${index}"]`);
+                if (priceEl) priceEl.textContent = `${formatMoney(feature.tiers[slabIndex])}/cam/yr`;
+            });
+        }
+
+        function formatMoney(value) {
+            return '₹' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+        }
+
+        function formatMoneyPdf(value) {
+            return 'Rs. ' + Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function updateStandeeDetails() {
+            const model = standeeModels[standeeModelSelect.value];
+            const priceTier = standeePriceTier.value === 'partner' ? formatMoney(model.partnerPrice) : formatMoney(model.endUserPrice);
+            standeeDetails.value = `${model.details}\nCategory: ${model.category}\nSize: ${model.size}\nPartner price: ${formatMoney(model.partnerPrice)}\nEnd-user price: ${formatMoney(model.endUserPrice)}\nSelected unit price: ${priceTier}`;
+            standeeInstallationPerUnit.value = formatMoney(model.installationPerUnit);
+            standeeFabricationPerUnit.value = formatMoney(model.fabricationPerUnit);
+            standeeScaffoldingPerUnit.value = formatMoney(model.scaffoldingPerUnit);
+            updateStandeePreview();
+        }
+
+        function getStandeePreviewImage(category) {
+            const map = {
+                'Wall Mount': 'WALLmOUNT.jpg',
+                'Imported Display - A-Type': 'ATYPE.jpg',
+                'Touch': 'TOUCH.jpg',
+                'Totem': 'TOTEM.jpg'
+            };
+            return map[category] || 'WALLmOUNT.jpg';
+        }
+
+        function updateStandeePreview() {
+            if (!standeePreview) return;
+            standeePreview.src = getStandeePreviewImage(standeeCategory.value);
+            standeePreview.alt = `${standeeCategory.value} preview`;
+        }
+
+        function updateLedDetails() {
+            const model = ledModels[ledModelSelect.value];
+            const area = getAreaSqFt();
+            const selectedPrice = ledPriceTier.value === 'b2b' ? model.b2bPricePerSqFt : model.b2cPricePerSqFt;
+            const selection = getLedControllerSelection();
+            const spec = selection.spec;
+            ledDetails.value = `${model.details}\nSize: ${area.toFixed(1)} sq ft\nTier: ${ledPriceTier.value === 'b2b' ? 'B2B (Partner price)' : 'B2C (End-user price)'}\nSelected rate: ${formatMoney(selectedPrice)}/sq ft\nController: ${selection.matched ? selection.name : 'Unmatched – see controller panel'}\nSpecs: ${model.pitch} pitch, ${model.category.toUpperCase()} LED`;
+
+            const status = document.getElementById('controllerStatus');
+            status.textContent = window.LED_CONTROLLER_RULES ? `${window.LED_CONTROLLER_RULES.length} engineering selection rules loaded (AV/Controller_Selection_Rules.json).` : 'LED controller dataset failed to load (AV/led-controller-data.js missing).';
+
+            if (ledControllerDetails) {
+                if (!selection.matched) {
+                    ledControllerDetails.value = `Resolution: ${spec.horizontalPixels} x ${spec.verticalPixels} px (${(spec.totalPixels / 1e6).toFixed(2)} MP)\nPixel pitch: ${spec.pitchMm} mm (band ${spec.pitchBand}) | Install: ${spec.installationType} | Mode: ${spec.controlMode}\n\n${selection.reason}`;
+                } else {
+                    const specSheet = selection.specSheet;
+                    const lines = [
+                        `Recommended controller: ${selection.name}${specSheet && specSheet.series ? ' (' + specSheet.series + ')' : ''}`,
+                        `Units required: ${selection.units}${selection.redundant ? ` (includes redundancy x2 – ${selection.redundancyReason})` : ''}`,
+                        `Selection confidence: ${selection.confidence}%`,
+                        `Unit price: ${formatMoney(selection.unitPrice)}${selection.units > 1 ? ` × ${selection.units} = ${formatMoney(selection.totalPrice)}` : ''}`,
+                        '',
+                        `Display resolution: ${spec.horizontalPixels} x ${spec.verticalPixels} px (${(spec.totalPixels / 1e6).toFixed(2)} MP)`,
+                        `Pixel pitch: ${spec.pitchMm} mm (band ${spec.pitchBand}) | Install: ${spec.installationType} | Mode: ${spec.controlMode}`
+                    ];
+                    if (specSheet) {
+                        lines.push(`Controller capacity: ${specSheet.maxPixels.toLocaleString('en-IN')} px | ${specSheet.ethPorts}x 1G Ethernet, ${specSheet.fiberPorts}x fiber`);
+                        if (specSheet.inputInterfaces) lines.push(`I/O: ${specSheet.inputInterfaces}`);
+                        if (specSheet.productUrl) lines.push(`Product: ${specSheet.productUrl}`);
+                    }
+                    lines.push('', selection.reason);
+                    ledControllerDetails.value = lines.join('\n');
+                }
+            }
+        }
+
+        function getAreaSqFt() {
+            const height = parseFloat(ledHeight.value) || 0;
+            const width = parseFloat(ledWidth.value) || 0;
+            const area = height * width;
+            if (ledUnit.value === 'm') return area * 10.7639;
+            if (ledUnit.value === 'in') return area * 0.00694444;
+            return area;
+        }
+
+        function addSummary(label, value, highlight = false) {
+            const item = document.createElement('div');
+            item.className = 'summary-item';
+            if (highlight) {
+                item.style.borderColor = '#22c55e';
+                item.style.background = 'rgba(34, 197, 94, 0.12)';
+            }
+            item.innerHTML = `<strong>${label}</strong><span>${value}</span>`;
+            summaryGrid.appendChild(item);
+        }
+
+        const QUOTATION_TERMS = [
+            '1. Any items other than mentioned in the above BOQ will be charged additional as per the feasibility of the solution.',
+            '2. Standard delivery period: 20-25 working days approx from the date of order. Installation after delivery.',
+            '3. Payment - 100% advance or as mutually agreed.',
+            '4. Above charges are only for supply of components. Installation is in the partner\'s scope; commissioning, if required, will be provided by NANTA Technology on a chargeable basis.',
+            '5. Any drawings / layout / placement details / DB level / modular reports will be charged additional under documentation charges.',
+            '6. All post-sales support and installation support is virtual (telephonic and remote support).',
+            '7. Onsite support charges will be extra after complete handover of the project.',
+            '8. Payment needs to be done as per agreed terms and cannot be put on hold for any performance-related issues.',
+            '9. NANTA Technology reserves the right to change the above quote at any given point of time.',
+            '10. Warranty will be guided by the OEM warranty terms for the items listed above and is void if not installed / operated per OEM guidelines.',
+            '11. Taxes will be charged as per applicable government terms.',
+            '12. The scope of supply includes only the items listed above. Prices are for the complete bill of material and are not valid for partial purchases.'
+        ];
+
+        function loadImageAsDataURL(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.naturalWidth;
+                        canvas.height = img.naturalHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/png'));
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
+
+        async function downloadQuotationPDF() {
+            calculateEstimate();
+            if (!window.jspdf) {
+                alert('PDF library failed to load. Check your internet connection and try again.');
+                return;
+            }
+
+            exportPdfButton.disabled = true;
+            const originalLabel = exportPdfButton.textContent;
+            exportPdfButton.textContent = 'Generating...';
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const marginX = 14;
+                const rightX = pageWidth - marginX;
+
+                let logoDataUrl = null;
+                try {
+                    logoDataUrl = await loadImageAsDataURL('NANTA.jpeg');
+                } catch (error) {
+                    logoDataUrl = null;
+                }
+
+                if (!quotationNumberInput.value) {
+                    quotationNumberInput.value = generateQuotationNumber();
+                }
+                const quotationNumber = quotationNumberInput.value;
+                const dateStr = new Date().toLocaleDateString('en-IN');
+
+                if (logoDataUrl) {
+                    doc.addImage(logoDataUrl, 'PNG', marginX, 9, 26, 18, undefined, 'FAST');
+                }
+
+                doc.setFont('times', 'bold');
+                doc.setTextColor(220, 38, 38);
+                doc.setFontSize(24);
+                doc.text('QUOTATION', rightX, 18, { align: 'right' });
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(60, 60, 60);
+                doc.text(`Quotation No: ${quotationNumber}   |   Version-1`, rightX, 26, { align: 'right' });
+                doc.text(`Quotation Date: ${dateStr}`, rightX, 31, { align: 'right' });
+
+                doc.setDrawColor(220, 38, 38);
+                doc.setLineWidth(0.6);
+                doc.line(marginX, 35, rightX, 35);
+
+                const boxY = 40;
+                const boxHeight = 36;
+                const boxWidth = (pageWidth - marginX * 2 - 6) / 2;
+                doc.setDrawColor(210, 200, 200);
+                doc.setFillColor(249, 245, 245);
+                doc.roundedRect(marginX, boxY, boxWidth, boxHeight, 2, 2, 'FD');
+                doc.roundedRect(marginX + boxWidth + 6, boxY, boxWidth, boxHeight, 2, 2, 'FD');
+
+                doc.setTextColor(17, 24, 39);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.text('Quotation From', marginX + 4, boxY + 6);
+                doc.text('Quotation For', marginX + boxWidth + 10, boxY + 6);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8.5);
+                const fromLines = [
+                    'NANTA Technology Limited',
+                    '205, F Block, Shivalik Sharda Harmony,',
+                    'Panjarapole Cross Rd, Ambawadi,',
+                    'Ahmedabad, Gujarat - 380015',
+                    `Prepared by: ${preparedByInput.value || '-'}`,
+                    'Email: sales@nantatech.com'
+                ];
+                fromLines.forEach((line, i) => doc.text(line, marginX + 4, boxY + 12 + i * 4));
+
+                const toLines = [
+                    clientCompanyInput.value || 'N/A',
+                    clientNameInput.value ? `Attn: ${clientNameInput.value}` : '',
+                    clientEmailInput.value ? `Email: ${clientEmailInput.value}` : '',
+                    clientPhoneInput.value ? `Phone: ${clientPhoneInput.value}` : ''
+                ].filter(Boolean);
+                if (clientAddressInput.value) {
+                    const wrappedAddress = doc.splitTextToSize(clientAddressInput.value, boxWidth - 8);
+                    toLines.splice(1, 0, ...wrappedAddress);
+                }
+                toLines.forEach((line, i) => doc.text(line, marginX + boxWidth + 10, boxY + 12 + i * 4));
+
+                const tableBody = currentLineItems.map((item, index) => [
+                    String(index + 1),
+                    item.description,
+                    String(item.qty),
+                    formatMoneyPdf(item.rate),
+                    formatMoneyPdf(item.amount)
+                ]);
+
+                doc.autoTable({
+                    startY: boxY + boxHeight + 8,
+                    head: [['Sr.No', 'Description', 'Qty', 'Unit Rate', 'Amount']],
+                    body: tableBody,
+                    theme: 'grid',
+                    styles: { font: 'helvetica', fontSize: 9.5, cellPadding: 3, textColor: [31, 41, 55], valign: 'middle', lineColor: [209, 213, 219], lineWidth: 0.2 },
+                    headStyles: { fillColor: [17, 24, 39], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9.5, halign: 'center' },
+                    alternateRowStyles: { fillColor: [248, 250, 252] },
+                    columnStyles: {
+                        0: { cellWidth: 13, halign: 'center' },
+                        1: { cellWidth: 'auto', halign: 'left' },
+                        2: { cellWidth: 16, halign: 'center' },
+                        3: { cellWidth: 32, halign: 'right', font: 'courier', fontSize: 9 },
+                        4: { cellWidth: 34, halign: 'right', font: 'courier', fontSize: 9, fontStyle: 'bold' }
+                    },
+                    margin: { left: marginX, right: marginX }
+                });
+
+                let y = doc.lastAutoTable.finalY + 6;
+                if (y > pageHeight - 40) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                const totalsX = rightX - 80;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor(31, 41, 55);
+                doc.text('Subtotal', totalsX, y);
+                doc.setFont('courier', 'normal');
+                doc.text(formatMoneyPdf(currentTotals.subtotal), rightX, y, { align: 'right' });
+                y += 6.5;
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(31, 41, 55);
+                doc.text(`Markup (${currentTotals.markup}%)`, totalsX, y);
+                doc.setFont('courier', 'normal');
+                doc.text(formatMoneyPdf(currentTotals.markupAmount), rightX, y, { align: 'right' });
+                y += 6.5;
+
+                if (currentTotals.discountTotal) {
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(21, 128, 61);
+                    doc.text('Discount', totalsX, y);
+                    doc.setFont('courier', 'normal');
+                    doc.text(`- ${formatMoneyPdf(currentTotals.discountTotal)}`, rightX, y, { align: 'right' });
+                    doc.setTextColor(31, 41, 55);
+                    y += 6.5;
+                }
+
+                y -= 2.5;
+
+                doc.setFillColor(254, 226, 226);
+                doc.rect(totalsX - 4, y, rightX - totalsX + 4, 10.5, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(185, 28, 28);
+                doc.text('Grand Total', totalsX, y + 7.2);
+                doc.setFont('courier', 'bold');
+                doc.text(formatMoneyPdf(currentTotals.total), rightX, y + 7.2, { align: 'right' });
+                y += 18;
+
+                const validityDays = parseInt(validityDaysInput.value, 10) || 7;
+                const validUntil = new Date();
+                validUntil.setDate(validUntil.getDate() + validityDays);
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(8.5);
+                doc.setTextColor(107, 114, 128);
+                const noteText = `Prices valid till ${validUntil.toLocaleDateString('en-IN')} (${validityDays} days from quotation date). Freight/transportation charges, if applicable, will be extra.`;
+                const wrappedNote = doc.splitTextToSize(noteText, rightX - marginX);
+                doc.text(wrappedNote, marginX, y);
+                y += wrappedNote.length * 4 + 4;
+
+                if (y > pageHeight - 30) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                doc.autoTable({
+                    startY: y,
+                    head: [['Terms and Conditions']],
+                    body: QUOTATION_TERMS.map(term => [term]),
+                    theme: 'plain',
+                    styles: { font: 'helvetica', fontSize: 7.8, cellPadding: 1.2, textColor: [55, 65, 81] },
+                    headStyles: { fontStyle: 'bold', fontSize: 9.5, textColor: [17, 24, 39] },
+                    margin: { left: marginX, right: marginX }
+                });
+
+                y = doc.lastAutoTable.finalY + 10;
+                if (y > pageHeight - 20) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                doc.setFont('times', 'bolditalic');
+                doc.setFontSize(13);
+                doc.setTextColor(220, 38, 38);
+                doc.text('Thank You', pageWidth / 2, y, { align: 'center' });
+
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let p = 1; p <= pageCount; p++) {
+                    doc.setPage(p);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(7.5);
+                    doc.setTextColor(156, 163, 175);
+                    doc.text(`Page ${p} of ${pageCount}`, rightX, pageHeight - 8, { align: 'right' });
+                }
+
+                const fileDate = new Date().toISOString().slice(0, 10);
+                doc.save(`quotation-${quotationNumber.replace(/[^a-z0-9-]+/gi, '_')}-${fileDate}.pdf`);
+            } finally {
+                exportPdfButton.disabled = false;
+                exportPdfButton.textContent = originalLabel;
+            }
+        }
+
+        function calculateEstimate() {
+            summaryGrid.innerHTML = '';
+            currentLineItems = [];
+            const commonInstallation = parseFloat(installationCost.value) || 0;
+            const commonFabrication = parseFloat(fabricationCost.value) || 0;
+            const commonScaffold = parseFloat(scaffoldingCost.value) || 0;
+            const markup = parseFloat(markupPercent.value) || 0;
+
+            function addLineItem(description, qty, rate, amount) {
+                currentLineItems.push({ description, qty, rate, amount });
+            }
+
+            const domain = domainSelect.value;
+            let domainSubtotal = 0;
+
+            if (domain === 'robotics') {
+                const productName = roboticsModelSelect.value;
+                const product = roboticsProducts[productName];
+                const tier = roboticsPriceTier.value;
+                const unitPrice = tier === 'distributor' ? product.distributorPrice : tier === 'partner' ? product.partnerPrice : product.customerPrice;
+                const quantity = Math.max(1, parseInt(roboticsQuantity.value, 10) || 1);
+                const baseCost = quantity * unitPrice;
+                domainSubtotal = baseCost;
+
+                addLineItem(`${productName} – ${product.category}`, quantity, unitPrice, baseCost);
+
+                const tierLabel = tier === 'distributor' ? 'Distributor price' : tier === 'partner' ? 'Partner price' : 'Customer price';
+                addSummary('Robot model', `${productName} – ${product.category}`);
+                addSummary('Price tier', tierLabel);
+                addSummary('Quantity', quantity);
+                addSummary('Unit price', formatMoney(unitPrice));
+                addSummary('Base cost', formatMoney(baseCost));
+            } else if (domain === 'ai') {
+                const cameraCount = Math.max(1, parseInt(aiCameraCount.value, 10) || 1);
+                const slabIndex = getAiSlabIndex(cameraCount);
+                const selectedCheckboxes = Array.from(aiFeatureList.querySelectorAll('input[type="checkbox"]:checked'));
+                let analyticsSubtotal = 0;
+                selectedCheckboxes.forEach(checkbox => {
+                    const feature = aiAnalytics[Number(checkbox.dataset.aiIndex)];
+                    const rate = feature.tiers[slabIndex];
+                    const amount = rate * cameraCount;
+                    analyticsSubtotal += amount;
+                    addLineItem(`${feature.name} (${feature.category})`, cameraCount, rate, amount);
+                });
+                domainSubtotal = analyticsSubtotal;
+
+                addSummary('Cameras', cameraCount);
+                addSummary('Volume slab', AI_SLAB_LABELS[slabIndex]);
+                addSummary('Analytics selected', selectedCheckboxes.length);
+                addSummary('Analytics subtotal (per year)', formatMoney(analyticsSubtotal));
+            } else if (domain === 'av' && projectType.value === 'standee') {
+                const model = standeeModels[standeeModelSelect.value];
+                const quantity = Math.max(1, parseInt(standeeQuantity.value, 10) || 1);
+                const selectedPrice = standeePriceTier.value === 'partner' ? model.partnerPrice : model.endUserPrice;
+                const baseCost = quantity * selectedPrice;
+                const fabricationUnit = quantity * model.fabricationPerUnit;
+                const installationUnit = quantity * model.installationPerUnit;
+                const scaffoldingUnit = quantity * model.scaffoldingPerUnit;
+                const fabrication = fabricationUnit + commonFabrication;
+                const installation = installationUnit + commonInstallation;
+                const scaffolding = scaffoldingUnit + commonScaffold;
+                domainSubtotal = baseCost + fabrication + installation + scaffolding;
+
+                addLineItem(`${standeeModelSelect.value} – ${model.details}`, quantity, selectedPrice, baseCost);
+                addLineItem('Installation', quantity, model.installationPerUnit, installationUnit);
+                if (commonInstallation) addLineItem('Additional installation cost', 1, commonInstallation, commonInstallation);
+                addLineItem('Fabrication', quantity, model.fabricationPerUnit, fabricationUnit);
+                if (commonFabrication) addLineItem('Additional fabrication cost', 1, commonFabrication, commonFabrication);
+                addLineItem('Scaffolding', quantity, model.scaffoldingPerUnit, scaffoldingUnit);
+                if (commonScaffold) addLineItem('Additional scaffolding cost', 1, commonScaffold, commonScaffold);
+
+                addSummary('Standee model', standeeModelSelect.value);
+                addSummary('Price tier', standeePriceTier.value === 'partner' ? 'Partner' : 'End-user MRP');
+                addSummary('Quantity', quantity);
+                addSummary('Unit price', formatMoney(selectedPrice));
+                addSummary('Base cost', formatMoney(baseCost));
+                addSummary('Installation cost', formatMoney(installation));
+                addSummary('Fabrication cost', formatMoney(fabrication));
+                addSummary('Scaffolding cost', formatMoney(scaffolding));
+            } else if (domain === 'av' && projectType.value === 'led') {
+                const model = ledModels[ledModelSelect.value];
+                const area = getAreaSqFt();
+                const selectedPrice = ledPriceTier.value === 'b2b' ? model.b2bPricePerSqFt : model.b2cPricePerSqFt;
+                const panelCost = area * selectedPrice;
+                const selection = getLedControllerSelection();
+                const controllerCost = selection.totalPrice;
+                const installationArea = area * LED_INSTALLATION_RATE_PER_SQFT;
+                const fabricationArea = area * model.fabricationPerSqFt;
+                const installation = installationArea + commonInstallation;
+                const fabrication = fabricationArea + commonFabrication;
+                const scaffolding = model.scaffoldingFixed + commonScaffold;
+                domainSubtotal = panelCost + controllerCost + installation + fabrication + scaffolding;
+
+                addLineItem(`${ledModelSelect.value} LED Screen – ${area.toFixed(2)} sq ft`, area.toFixed(2), selectedPrice, panelCost);
+                if (selection.matched) {
+                    addLineItem(`Controller – ${selection.name}`, selection.units, selection.unitPrice, controllerCost);
+                } else {
+                    addLineItem('Controller – no rule match', 1, 0, 0);
+                }
+                addLineItem('Installation', area.toFixed(2), LED_INSTALLATION_RATE_PER_SQFT, installationArea);
+                if (commonInstallation) addLineItem('Additional installation cost', 1, commonInstallation, commonInstallation);
+                addLineItem('Fabrication', area.toFixed(2), model.fabricationPerSqFt, fabricationArea);
+                if (commonFabrication) addLineItem('Additional fabrication cost', 1, commonFabrication, commonFabrication);
+                addLineItem('Scaffolding', 1, model.scaffoldingFixed, model.scaffoldingFixed);
+                if (commonScaffold) addLineItem('Additional scaffolding cost', 1, commonScaffold, commonScaffold);
+
+                addSummary('LED model', ledModelSelect.value);
+                addSummary('Price tier', ledPriceTier.value === 'b2b' ? 'B2B (Partner price)' : 'B2C (End-user price)');
+                addSummary('Area (sq ft)', area.toFixed(2));
+                addSummary('Panel price', formatMoney(selectedPrice));
+                addSummary('LED panel cost', formatMoney(panelCost));
+                addSummary('Resolution', `${selection.spec.horizontalPixels} x ${selection.spec.verticalPixels} px`);
+                addSummary('Control mode', selection.spec.controlMode);
+                addSummary('Controller', selection.matched ? `${selection.name} x${selection.units}${selection.redundant ? ' (redundant)' : ''}` : 'No rule match');
+                if (selection.matched) addSummary('Controller confidence', `${selection.confidence}%`);
+                addSummary('Controller cost', formatMoney(controllerCost));
+                addSummary('Installation cost', formatMoney(installation));
+                addSummary('Fabrication cost', formatMoney(fabrication));
+                addSummary('Scaffolding cost', formatMoney(scaffolding));
+            } else if (domain === 'av' && projectType.value === 'conference') {
+                const product = avCameraProducts[conferenceModelSelect.value];
+                const tier = conferencePriceTier.value;
+                const unitPrice = tier === 'partner' ? product.partnerPrice : tier === 'distributor' ? product.distributorPrice : product.customerPrice;
+                const quantity = Math.max(1, parseInt(conferenceQuantity.value, 10) || 1);
+                const baseCost = quantity * unitPrice;
+
+                let accessoryCost = 0;
+                let accessoryUnitPrice = 0;
+                if (product.accessory && conferenceAccessoryCheckbox.checked) {
+                    accessoryUnitPrice = tier === 'partner' ? product.accessory.partnerPrice : tier === 'distributor' ? product.accessory.distributorPrice : product.accessory.customerPrice;
+                    accessoryCost = quantity * accessoryUnitPrice;
+                }
+
+                domainSubtotal = baseCost + accessoryCost + commonInstallation + commonFabrication;
+
+                addLineItem(`${conferenceModelSelect.value} – ${product.description}`, quantity, unitPrice, baseCost);
+                if (accessoryCost) addLineItem(product.accessory.name, quantity, accessoryUnitPrice, accessoryCost);
+                if (commonInstallation) addLineItem('Additional installation cost', 1, commonInstallation, commonInstallation);
+                if (commonFabrication) addLineItem('Additional fabrication cost', 1, commonFabrication, commonFabrication);
+
+                const tierLabel = tier === 'partner' ? 'Partner price' : tier === 'distributor' ? 'Distributor price' : 'Customer price';
+                addSummary('Device model', conferenceModelSelect.value);
+                addSummary('Price tier', tierLabel);
+                addSummary('Quantity', quantity);
+                addSummary('Unit price', formatMoney(unitPrice));
+                addSummary('Base cost', formatMoney(baseCost));
+                if (accessoryCost) addSummary('Wireless dongle accessory', formatMoney(accessoryCost));
+                if (commonInstallation) addSummary('Installation cost', formatMoney(commonInstallation));
+                if (commonFabrication) addSummary('Fabrication cost', formatMoney(commonFabrication));
+            } else if (domain === 'av' && projectType.value === 'interactive-panel') {
+                const product = interactivePanelProducts[ifpModelSelect.value];
+                const tier = ifpPriceTier.value;
+                const unitPrice = tier === 'distributor' ? product.distributorPrice : tier === 'partner' ? product.partnerPrice : product.customerPrice;
+                const quantity = Math.max(1, parseInt(ifpQuantity.value, 10) || 1);
+                const baseCost = quantity * unitPrice;
+
+                domainSubtotal = baseCost + commonInstallation + commonFabrication;
+
+                addLineItem(`${ifpModelSelect.value} – ${product.name}`, quantity, unitPrice, baseCost);
+                if (commonInstallation) addLineItem('Additional installation cost', 1, commonInstallation, commonInstallation);
+                if (commonFabrication) addLineItem('Additional fabrication cost', 1, commonFabrication, commonFabrication);
+
+                const tierLabel = tier === 'distributor' ? 'Distributor price' : tier === 'partner' ? 'Partner price' : 'Customer price';
+                addSummary('Panel model', `${ifpModelSelect.value} – ${product.name}`);
+                addSummary('Price tier', tierLabel);
+                addSummary('Quantity', quantity);
+                addSummary('Unit price', formatMoney(unitPrice));
+                addSummary('Base cost', formatMoney(baseCost));
+                if (commonInstallation) addSummary('Installation cost', formatMoney(commonInstallation));
+                if (commonFabrication) addSummary('Fabrication cost', formatMoney(commonFabrication));
+            } else if (domain === 'av' && projectType.value === 'cables') {
+                const product = cableProducts[cableModelSelect.value];
+                const series = CABLE_SERIES[product.series];
+                const tier = cablePriceTier.value;
+                const unitPrice = tier === 'distributor' ? product.distributorPrice : tier === 'partner' ? product.partnerPrice : product.customerPrice;
+                const quantity = Math.max(1, parseInt(cableQuantity.value, 10) || 1);
+                const baseCost = quantity * unitPrice;
+
+                domainSubtotal = baseCost + commonInstallation + commonFabrication;
+
+                addLineItem(`${cableModelSelect.value} – ${series.name} (${product.length})`, quantity, unitPrice, baseCost);
+                if (commonInstallation) addLineItem('Additional installation cost', 1, commonInstallation, commonInstallation);
+                if (commonFabrication) addLineItem('Additional fabrication cost', 1, commonFabrication, commonFabrication);
+
+                const tierLabel = tier === 'distributor' ? 'Distributor price' : tier === 'partner' ? 'Partner price' : 'Customer price';
+                addSummary('Cable', `${cableModelSelect.value} (${product.length})`);
+                addSummary('Cable type', series.name);
+                addSummary('Price tier', tierLabel);
+                addSummary('Quantity', quantity);
+                addSummary('Unit price', formatMoney(unitPrice));
+                addSummary('Base cost', formatMoney(baseCost));
+                if (commonInstallation) addSummary('Installation cost', formatMoney(commonInstallation));
+                if (commonFabrication) addSummary('Fabrication cost', formatMoney(commonFabrication));
+            }
+
+            lastComputedItem = { label: getCurrentSelectionLabel(), lineItems: currentLineItems.slice(), subtotal: domainSubtotal };
+
+            let cartTotal = 0;
+            cartItems.forEach(item => {
+                item.lineItems.forEach(li => addLineItem(`[${item.label}] ${li.description}`, li.qty, li.rate, li.amount));
+                cartTotal += item.subtotal;
+            });
+            if (cartItems.length) {
+                addSummary('Products in quote', cartItems.length + 1);
+                addSummary('Products subtotal', formatMoney(domainSubtotal + cartTotal));
+            }
+
+            let customProductsTotal = 0;
+            customProducts.forEach(item => {
+                const qty = Math.max(1, parseInt(item.qty, 10) || 1);
+                const price = parseFloat(item.price) || 0;
+                const amount = qty * price;
+                customProductsTotal += amount;
+                addLineItem(item.name && item.name.trim() ? item.name.trim() : 'Custom product', qty, price, amount);
+            });
+            if (customProductsTotal) {
+                addSummary('Custom products', formatMoney(customProductsTotal));
+            }
+
+            const subtotal = domainSubtotal + cartTotal + customProductsTotal;
+            const markedUpTotal = subtotal * (1 + markup / 100);
+
+            let discountTotal = 0;
+            discounts.forEach(d => {
+                const value = parseFloat(d.value) || 0;
+                discountTotal += d.type === 'percent' ? markedUpTotal * (value / 100) : value;
+            });
+            const total = Math.max(0, markedUpTotal - discountTotal);
+            currentTotals = { subtotal, markup, markupAmount: markedUpTotal - subtotal, discountTotal, total };
+
+            addSummary('Subtotal', formatMoney(subtotal));
+            addSummary('Markup', `${markup}%`);
+            if (discountTotal) {
+                addSummary('Discount', `– ${formatMoney(discountTotal)}`);
+            }
+            addSummary('Estimated total', formatMoney(total), true);
+        }
+
+        domainSelect.addEventListener('change', () => {
+            showSection();
+            calculateEstimate();
+        });
+        roboticsModelSelect.addEventListener('change', () => {
+            updateRoboticsDetails();
+            calculateEstimate();
+        });
+        roboticsPriceTier.addEventListener('change', calculateEstimate);
+        roboticsQuantity.addEventListener('input', calculateEstimate);
+        aiCameraCount.addEventListener('input', () => {
+            updateAiFeaturePrices();
+            calculateEstimate();
+        });
+        aiFeatureList.addEventListener('change', (event) => {
+            if (event.target.matches('input[type="checkbox"]')) {
+                calculateEstimate();
+            }
+        });
+        projectType.addEventListener('change', () => {
+            showSection();
+            updateConferenceDetails();
+            calculateEstimate();
+        });
+        conferenceModelSelect.addEventListener('change', () => {
+            updateConferenceDetails();
+            calculateEstimate();
+        });
+        conferencePriceTier.addEventListener('change', calculateEstimate);
+        conferenceQuantity.addEventListener('input', calculateEstimate);
+        conferenceAccessoryCheckbox.addEventListener('change', calculateEstimate);
+        ifpModelSelect.addEventListener('change', () => {
+            updateIfpDetails();
+            calculateEstimate();
+        });
+        ifpPriceTier.addEventListener('change', calculateEstimate);
+        ifpQuantity.addEventListener('input', calculateEstimate);
+        cableSeriesSelect.addEventListener('change', () => {
+            populateCableModels(cableSeriesSelect.value);
+            updateCableDetails();
+            calculateEstimate();
+        });
+        cableModelSelect.addEventListener('change', () => {
+            updateCableDetails();
+            calculateEstimate();
+        });
+        cablePriceTier.addEventListener('change', calculateEstimate);
+        cableQuantity.addEventListener('input', calculateEstimate);
+        addDiscountButton.addEventListener('click', () => {
+            discounts.push({ id: nextLineItemId++, label: 'Discount', type: 'percent', value: 0 });
+            renderDiscountRows();
+            calculateEstimate();
+        });
+        addCustomProductButton.addEventListener('click', () => {
+            customProducts.push({ id: nextLineItemId++, name: '', qty: 1, price: 0 });
+            renderCustomProductRows();
+            calculateEstimate();
+        });
+        addToQuoteButton.addEventListener('click', () => {
+            calculateEstimate();
+            if (!lastComputedItem || !lastComputedItem.lineItems.length) {
+                alert('Configure a product above before adding it to the quote.');
+                return;
+            }
+            cartItems.push({ id: nextLineItemId++, label: lastComputedItem.label, lineItems: lastComputedItem.lineItems, subtotal: lastComputedItem.subtotal });
+            renderCartRows();
+            calculateEstimate();
+        });
+        standeeCategory.addEventListener('change', () => {
+            populateStandeeModels(standeeCategory.value);
+            updateStandeeDetails();
+            calculateEstimate();
+        });
+        standeeModelSelect.addEventListener('change', () => {
+            updateStandeeDetails();
+            calculateEstimate();
+        });
+        standeePriceTier.addEventListener('change', () => {
+            updateStandeeDetails();
+            calculateEstimate();
+        });
+        const updateLedState = () => {
+            updateLedDetails();
+            calculateEstimate();
+        };
+
+        ledModelSelect.addEventListener('change', updateLedState);
+        ledPriceTier.addEventListener('change', updateLedState);
+        ledCategory.addEventListener('change', () => {
+            populateLedModels(ledCategory.value);
+            updateLedState();
+        });
+        ledHeight.addEventListener('input', updateLedState);
+        ledWidth.addEventListener('input', updateLedState);
+        ledUnit.addEventListener('change', updateLedState);
+        ledControlMode.addEventListener('change', updateLedState);
+        ledRedundancy.addEventListener('change', updateLedState);
+        standeeQuantity.addEventListener('input', calculateEstimate);
+        installationCost.addEventListener('input', calculateEstimate);
+        fabricationCost.addEventListener('input', calculateEstimate);
+        scaffoldingCost.addEventListener('input', calculateEstimate);
+        markupPercent.addEventListener('input', calculateEstimate);
+        calculateButton.addEventListener('click', calculateEstimate);
+        exportPdfButton.addEventListener('click', downloadQuotationPDF);
+        resetButton.addEventListener('click', () => {
+            installationCost.value = '0';
+            fabricationCost.value = '0';
+            scaffoldingCost.value = '0';
+            markupPercent.value = '10';
+            standeeQuantity.value = '1';
+            ledHeight.value = '4';
+            ledWidth.value = '6';
+            ledUnit.value = 'ft';
+            ledControlMode.value = 'Synchronous';
+            ledRedundancy.value = 'auto';
+            standeePriceTier.value = 'partner';
+            projectType.value = 'standee';
+            domainSelect.value = 'av';
+            conferencePriceTier.value = 'partner';
+            conferenceQuantity.value = '1';
+            conferenceAccessoryCheckbox.checked = false;
+            ifpPriceTier.value = 'distributor';
+            ifpQuantity.value = '1';
+            cablePriceTier.value = 'distributor';
+            cableQuantity.value = '1';
+            roboticsPriceTier.value = 'distributor';
+            roboticsQuantity.value = '1';
+            aiCameraCount.value = '25';
+            aiFeatureList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateAiFeaturePrices();
+            discounts = [];
+            customProducts = [];
+            cartItems = [];
+            renderDiscountRows();
+            renderCustomProductRows();
+            renderCartRows();
+            quotationNumberInput.value = generateQuotationNumber();
+            preparedByInput.value = '';
+            clientNameInput.value = '';
+            clientCompanyInput.value = '';
+            clientEmailInput.value = '';
+            clientPhoneInput.value = '';
+            clientAddressInput.value = '';
+            validityDaysInput.value = '7';
+            showSection();
+            updateStandeeDetails();
+            updateLedDetails();
+            updateConferenceDetails();
+            updateIfpDetails();
+            populateCableModels(cableSeriesSelect.value);
+            updateCableDetails();
+            updateRoboticsDetails();
+            calculateEstimate();
+        });
+
+        quotationNumberInput.value = generateQuotationNumber();
+        populateStandeeModels(standeeCategory.value);
+        populateLedModels(ledCategory.value);
+        populateConferenceModels();
+        populateIfpModels();
+        populateCableSeries();
+        populateCableModels(cableSeriesSelect.value);
+        populateRoboticsModels();
+        renderAiFeatureList();
+        showSection();
+        updateStandeeDetails();
+        updateLedDetails();
+        updateConferenceDetails();
+        updateIfpDetails();
+        updateCableDetails();
+        updateRoboticsDetails();
+        calculateEstimate();
+    </script>
+</body>
+</html>
