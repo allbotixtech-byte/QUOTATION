@@ -318,13 +318,27 @@
         </div>
         <p>Estimate Robotics, AV, and AI Video Analytics costs with model-based pricing and installation/fabrication/scaffolding costs.</p>
         <div class="domain-panel">
-            <div class="row">
+            <div class="row columns">
                 <div class="field">
                     <label for="domainSelect">Domain</label>
                     <select id="domainSelect">
                         <option value="av">AV</option>
                         <option value="robotics">Robotics</option>
                         <option value="ai">AI Video Analytics (VMS)</option>
+                        <option value="si">System Integration</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="projectVertical">Project vertical (optional)</label>
+                    <select id="projectVertical">
+                        <option value="">Not specified</option>
+                        <option value="Corporate">Corporate</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Education">Education</option>
+                        <option value="Hospitality">Hospitality</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Government">Government</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
             </div>
@@ -411,6 +425,38 @@
                     <div class="field">
                         <label for="ledWidth">Width</label>
                         <input id="ledWidth" type="number" step="any" min="0" value="6" />
+                    </div>
+                </div>
+                <div class="row columns">
+                    <div class="field">
+                        <label for="ledAspectMode">Aspect ratio</label>
+                        <select id="ledAspectMode">
+                            <option value="auto">Auto (detect from height/width)</option>
+                            <option value="custom">Custom (pick or enter a ratio)</option>
+                        </select>
+                    </div>
+                    <div class="field" id="ledAspectPresetField" style="display:none;">
+                        <label for="ledAspectPreset">Target ratio</label>
+                        <select id="ledAspectPreset">
+                            <option value="16:9">16:9 (Widescreen)</option>
+                            <option value="4:3">4:3 (Standard)</option>
+                            <option value="21:9">21:9 (Cinematic)</option>
+                            <option value="1:1">1:1 (Square)</option>
+                            <option value="3:2">3:2</option>
+                            <option value="custom">Custom W:H…</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row columns" id="ledAspectCustomRow" style="display:none;">
+                    <div class="field">
+                        <label for="ledAspectCustom">Custom ratio (W:H)</label>
+                        <input id="ledAspectCustom" type="text" placeholder="e.g. 32:9" value="16:9" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <div id="ledAspectSuggestion" class="small"></div>
+                        <button id="ledAspectApplyButton" type="button" class="secondary-button" style="margin-top:8px;">Apply suggested height</button>
                     </div>
                 </div>
                 <div class="row columns">
@@ -639,10 +685,31 @@
                     <div id="aiSlabLabel" class="small" style="padding-top:10px;">1–25 Cameras</div>
                 </div>
             </div>
-            <p class="small">Per-camera / per-year list pricing, exclusive of 18% GST. Volume slab is based on the total camera count above. Select the analytics features required for this project.</p>
+            <div class="row columns">
+                <div class="field">
+                    <label for="aiOneTimeCost">One-time implementation &amp; configuration cost (₹)</label>
+                    <input id="aiOneTimeCost" type="number" step="any" min="0" value="0" />
+                </div>
+                <div class="field">
+                    <label for="aiCategoryJump">Jump to detection category</label>
+                    <select id="aiCategoryJump">
+                        <option value="">Select category…</option>
+                    </select>
+                </div>
+            </div>
+            <p class="small">Per-license / per-year list pricing, exclusive of 18% GST. Volume slab is based on the total camera count above. Select the analytics features required for this project.</p>
             <div class="field">
                 <label>Select analytics features</label>
                 <div id="aiFeatureList" class="ai-feature-list"></div>
+            </div>
+        </section>
+        <section id="siSection" class="section-panel" style="display:none;">
+            <h2>System Integration Estimator</h2>
+            <p class="small">No fixed catalog yet for this domain &mdash; add each item (equipment, labor, licenses, etc.) as a line below. Ask NANTA to add a proper product catalog for System Integration when pricing data is available.</p>
+            <div class="field">
+                <label>SI line items</label>
+                <div id="siItemRows"></div>
+                <button id="addSiItemButton" type="button" class="secondary-button">+ Add SI Item</button>
             </div>
         </section>
         <h2>Quotation Details</h2>
@@ -655,6 +722,16 @@
                 <div class="field">
                     <label for="preparedBy">Prepared by</label>
                     <input id="preparedBy" type="text" placeholder="NANTA representative name" />
+                </div>
+            </div>
+            <div class="row columns">
+                <div class="field">
+                    <label for="preparedByPhone">Prepared by – contact number</label>
+                    <input id="preparedByPhone" type="tel" placeholder="+91 ..." />
+                </div>
+                <div class="field">
+                    <label for="preparedByEmail">Prepared by – email ID</label>
+                    <input id="preparedByEmail" type="email" placeholder="name@nantatech.com" />
                 </div>
             </div>
             <div class="row columns">
@@ -732,6 +809,7 @@
         <div class="row">
             <div class="field">
                 <label>Custom products</label>
+                <div class="small">Use this to build tailor-made / preplanned AV projects (e.g. auditorium or theatre seating layouts) line by line, or to add any item not in the standard catalogs.</div>
                 <div id="customProductRows"></div>
                 <button id="addCustomProductButton" type="button" class="secondary-button">+ Add Custom Product</button>
             </div>
@@ -1024,6 +1102,68 @@
             if (ledUnit.value === 'm') { heightFt *= 3.28084; widthFt *= 3.28084; }
             else if (ledUnit.value === 'in') { heightFt /= 12; widthFt /= 12; }
             return { widthFt, heightFt };
+        }
+
+        const LED_ASPECT_PRESETS = { '16:9': 16 / 9, '4:3': 4 / 3, '21:9': 21 / 9, '1:1': 1, '3:2': 3 / 2 };
+
+        function ftToCurrentUnit(ft) {
+            if (ledUnit.value === 'm') return ft / 3.28084;
+            if (ledUnit.value === 'in') return ft * 12;
+            return ft;
+        }
+
+        function getNearestAspectPreset(ratio) {
+            let best = '16:9', bestDiff = Infinity;
+            Object.entries(LED_ASPECT_PRESETS).forEach(([label, value]) => {
+                const diff = Math.abs(value - ratio);
+                if (diff < bestDiff) { bestDiff = diff; best = label; }
+            });
+            return best;
+        }
+
+        function parseCustomRatio(text) {
+            const parts = String(text || '').split(':').map(Number);
+            if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) return parts[0] / parts[1];
+            return null;
+        }
+
+        function updateLedAspectFieldVisibility() {
+            ledAspectPresetField.style.display = ledAspectMode.value === 'custom' ? '' : 'none';
+            ledAspectCustomRow.style.display = (ledAspectMode.value === 'custom' && ledAspectPreset.value === 'custom') ? '' : 'none';
+        }
+
+        function updateLedAspectSuggestion() {
+            updateLedAspectFieldVisibility();
+            const { widthFt, heightFt } = getLedDimensionsFt();
+            const unitLabel = ledUnit.value;
+            if (!widthFt || !heightFt) {
+                ledAspectSuggestion.textContent = 'Enter height and width to see an aspect ratio suggestion.';
+                delete ledAspectSuggestion.dataset.suggestedHeight;
+                return;
+            }
+            const currentRatio = widthFt / heightFt;
+            let targetLabel, targetRatio;
+            if (ledAspectMode.value === 'auto') {
+                targetLabel = getNearestAspectPreset(currentRatio);
+                targetRatio = LED_ASPECT_PRESETS[targetLabel];
+            } else if (ledAspectPreset.value === 'custom') {
+                targetRatio = parseCustomRatio(ledAspectCustom.value) || currentRatio;
+                targetLabel = ledAspectCustom.value || 'Custom';
+            } else {
+                targetLabel = ledAspectPreset.value;
+                targetRatio = LED_ASPECT_PRESETS[targetLabel];
+            }
+            const suggestedHeightFt = widthFt / targetRatio;
+            const suggestedHeightDisplay = ftToCurrentUnit(suggestedHeightFt).toFixed(2);
+            ledAspectSuggestion.textContent = `Current ratio ≈ ${currentRatio.toFixed(2)}:1. For width ${ledWidth.value} ${unitLabel}, ${targetLabel} suggests a height of ≈ ${suggestedHeightDisplay} ${unitLabel}.`;
+            ledAspectSuggestion.dataset.suggestedHeight = suggestedHeightDisplay;
+        }
+
+        function applyLedAspectSuggestion() {
+            const suggested = ledAspectSuggestion.dataset.suggestedHeight;
+            if (!suggested) return;
+            ledHeight.value = suggested;
+            updateLedState();
         }
 
         function pitchStringToMm(pitchStr) {
@@ -1671,6 +1811,12 @@
         const aiCameraCount = document.getElementById('aiCameraCount');
         const aiSlabLabel = document.getElementById('aiSlabLabel');
         const aiFeatureList = document.getElementById('aiFeatureList');
+        const aiOneTimeCost = document.getElementById('aiOneTimeCost');
+        const aiCategoryJump = document.getElementById('aiCategoryJump');
+        const siSection = document.getElementById('siSection');
+        const siItemRowsContainer = document.getElementById('siItemRows');
+        const addSiItemButton = document.getElementById('addSiItemButton');
+        const projectVerticalSelect = document.getElementById('projectVertical');
         const projectType = document.getElementById('projectType');
         const standeeSection = document.getElementById('standeeSection');
         const ledSection = document.getElementById('ledSection');
@@ -1687,6 +1833,13 @@
         const ledWidth = document.getElementById('ledWidth');
         const ledUnit = document.getElementById('ledUnit');
         const ledCategory = document.getElementById('ledCategory');
+        const ledAspectMode = document.getElementById('ledAspectMode');
+        const ledAspectPresetField = document.getElementById('ledAspectPresetField');
+        const ledAspectPreset = document.getElementById('ledAspectPreset');
+        const ledAspectCustomRow = document.getElementById('ledAspectCustomRow');
+        const ledAspectCustom = document.getElementById('ledAspectCustom');
+        const ledAspectSuggestion = document.getElementById('ledAspectSuggestion');
+        const ledAspectApplyButton = document.getElementById('ledAspectApplyButton');
         const ledModelSelect = document.getElementById('ledModel');
         const ledPriceTier = document.getElementById('ledPriceTier');
         const ledDetails = document.getElementById('ledDetails');
@@ -1727,6 +1880,8 @@
         const summaryGrid = document.getElementById('summaryGrid');
         const quotationNumberInput = document.getElementById('quotationNumber');
         const preparedByInput = document.getElementById('preparedBy');
+        const preparedByPhoneInput = document.getElementById('preparedByPhone');
+        const preparedByEmailInput = document.getElementById('preparedByEmail');
         const clientNameInput = document.getElementById('clientName');
         const clientCompanyInput = document.getElementById('clientCompany');
         const clientEmailInput = document.getElementById('clientEmail');
@@ -1741,9 +1896,11 @@
         const addCustomProductButton = document.getElementById('addCustomProductButton');
 
         let currentLineItems = [];
+        let currentProductGroups = [];
         let currentTotals = { subtotal: 0, markup: 0, markupAmount: 0, discountTotal: 0, total: 0 };
         let discounts = [];
         let customProducts = [];
+        let siItems = [];
         let cartItems = [];
         let lastComputedItem = null;
         let nextLineItemId = 1;
@@ -1752,6 +1909,7 @@
             const domain = domainSelect.value;
             if (domain === 'robotics') return `Robotics – ${roboticsModelSelect.value}`;
             if (domain === 'ai') return `AI Video Analytics – ${aiCameraCount.value} cameras`;
+            if (domain === 'si') return `System Integration – ${siItems.length} item(s)`;
             if (domain === 'av') {
                 const pt = projectType.value;
                 if (pt === 'standee') return `Standee – ${standeeModelSelect.value}`;
@@ -1776,18 +1934,43 @@
                 row.querySelector('.remove-item-btn').addEventListener('click', () => {
                     cartItems = cartItems.filter(p => p.id !== item.id);
                     renderCartRows();
+                    refreshQuotationPrefix();
                     calculateEstimate();
                 });
                 cartRowsContainer.appendChild(row);
             });
         }
 
-        function generateQuotationNumber() {
+        const DOMAIN_QUOTE_PREFIX = { av: 'AV', robotics: 'ROBO', ai: 'AI', si: 'SI' };
+
+        function getCurrentDomainKey() {
+            return domainSelect.value;
+        }
+
+        function computeQuotationPrefix() {
+            const domains = new Set(cartItems.map(i => i.domainKey));
+            domains.add(getCurrentDomainKey());
+            if (domains.size > 1) return 'COMBO';
+            return DOMAIN_QUOTE_PREFIX[[...domains][0]] || 'NT';
+        }
+
+        function generateQuotationNumber(prefix) {
             const now = new Date();
             const mm = String(now.getMonth() + 1).padStart(2, '0');
             const dd = String(now.getDate()).padStart(2, '0');
             const yy = String(now.getFullYear()).slice(-2);
-            return `NT-${mm}${dd}${yy}/01`;
+            return `NT-${prefix}-${mm}${dd}${yy}/01`;
+        }
+
+        function refreshQuotationPrefix() {
+            const prefix = computeQuotationPrefix();
+            const current = quotationNumberInput.value || '';
+            const match = current.match(/^NT-[A-Z]+-(\d{6}\/.+)$/);
+            if (match) {
+                quotationNumberInput.value = `NT-${prefix}-${match[1]}`;
+            } else if (!current.trim()) {
+                quotationNumberInput.value = generateQuotationNumber(prefix);
+            }
         }
 
         function createOption(value, label) {
@@ -1825,6 +2008,7 @@
             avDomainSection.style.display = domain === 'av' ? 'block' : 'none';
             roboticsSection.style.display = domain === 'robotics' ? 'block' : 'none';
             aiSection.style.display = domain === 'ai' ? 'block' : 'none';
+            siSection.style.display = domain === 'si' ? 'block' : 'none';
             extraCostFields.style.display = domain === 'av' ? 'block' : 'none';
 
             if (domain === 'av') {
@@ -1979,6 +2163,38 @@
             });
         }
 
+        function renderSiRows() {
+            siItemRowsContainer.innerHTML = '';
+            siItems.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'line-item-row';
+                row.innerHTML = `
+                    <input type="text" class="si-name" placeholder="Item / scope description" value="${item.name}" />
+                    <input type="number" class="si-qty" min="1" step="1" placeholder="Qty" value="${item.qty}" />
+                    <input type="number" class="si-price" min="0" step="any" placeholder="Unit price (₹)" value="${item.price}" />
+                    <button type="button" class="remove-item-btn" title="Remove item">×</button>
+                `;
+                row.querySelector('.si-name').addEventListener('input', event => {
+                    item.name = event.target.value;
+                    calculateEstimate();
+                });
+                row.querySelector('.si-qty').addEventListener('input', event => {
+                    item.qty = Math.max(1, parseInt(event.target.value, 10) || 1);
+                    calculateEstimate();
+                });
+                row.querySelector('.si-price').addEventListener('input', event => {
+                    item.price = parseFloat(event.target.value) || 0;
+                    calculateEstimate();
+                });
+                row.querySelector('.remove-item-btn').addEventListener('click', () => {
+                    siItems = siItems.filter(p => p.id !== item.id);
+                    renderSiRows();
+                    calculateEstimate();
+                });
+                siItemRowsContainer.appendChild(row);
+            });
+        }
+
         function populateRoboticsModels() {
             roboticsModelSelect.innerHTML = '';
             Object.keys(roboticsProducts).forEach(name => {
@@ -2001,15 +2217,22 @@
             }
         }
 
+        function slugify(text) {
+            return String(text).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
         function renderAiFeatureList() {
             aiFeatureList.innerHTML = '';
+            aiCategoryJump.innerHTML = '<option value="">Select category…</option>';
             let lastCategory = null;
             aiAnalytics.forEach((feature, index) => {
                 if (feature.category !== lastCategory) {
                     const heading = document.createElement('div');
                     heading.className = 'ai-feature-category';
                     heading.textContent = feature.category;
+                    heading.id = `ai-cat-${slugify(feature.category)}`;
                     aiFeatureList.appendChild(heading);
+                    aiCategoryJump.appendChild(createOption(feature.category, feature.category));
                     lastCategory = feature.category;
                 }
                 const row = document.createElement('label');
@@ -2033,9 +2256,11 @@
             aiSlabLabel.textContent = AI_SLAB_LABELS[slabIndex];
             aiAnalytics.forEach((feature, index) => {
                 const priceEl = aiFeatureList.querySelector(`[data-ai-price="${index}"]`);
-                if (priceEl) priceEl.textContent = `${formatMoney(feature.tiers[slabIndex])}/cam/yr`;
+                if (priceEl) priceEl.textContent = `${formatMoney(feature.tiers[slabIndex])}/license/yr`;
             });
         }
+
+        const GST_RATE_PERCENT = 18;
 
         function formatMoney(value) {
             return '₹' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
@@ -2072,6 +2297,7 @@
         }
 
         function updateLedDetails() {
+            updateLedAspectSuggestion();
             const model = ledModels[ledModelSelect.value];
             const area = getAreaSqFt();
             const selectedPrice = ledPriceTier.value === 'b2b' ? model.b2bPricePerSqFt : model.b2cPricePerSqFt;
@@ -2139,8 +2365,33 @@
             '9. NANTA Technology reserves the right to change the above quote at any given point of time.',
             '10. Warranty will be guided by the OEM warranty terms for the items listed above and is void if not installed / operated per OEM guidelines.',
             '11. Taxes will be charged as per applicable government terms.',
-            '12. The scope of supply includes only the items listed above. Prices are for the complete bill of material and are not valid for partial purchases.'
+            '12. The scope of supply includes only the items listed above. Prices are for the complete bill of material and are not valid for partial purchases.',
+            '13. SITC (Supply, Installation, Testing & Commissioning) is included in the above scope unless mentioned otherwise.'
         ];
+
+        function buildPdfTableRows(lineItems) {
+            const groups = (currentProductGroups || []).filter(g => g.end > g.start);
+            const rows = [];
+            let sr = 1;
+            const asRow = item => [String(sr++), item.description, item.unit, String(item.qty), formatMoneyPdf(item.rate), formatMoneyPdf(item.amount)];
+
+            if (groups.length <= 1) {
+                lineItems.forEach(item => rows.push(asRow(item)));
+                return rows;
+            }
+
+            groups.forEach((group, gi) => {
+                rows.push([{
+                    content: `Product ${gi + 1}: ${group.label}`,
+                    colSpan: 6,
+                    styles: { fillColor: [243, 244, 246], fontStyle: 'bold', textColor: [17, 24, 39], halign: 'left' }
+                }]);
+                for (let i = group.start; i < group.end; i++) {
+                    rows.push(asRow(lineItems[i]));
+                }
+            });
+            return rows;
+        }
 
         function loadImageAsDataURL(url) {
             return new Promise((resolve, reject) => {
@@ -2189,7 +2440,7 @@
                 }
 
                 if (!quotationNumberInput.value) {
-                    quotationNumberInput.value = generateQuotationNumber();
+                    quotationNumberInput.value = generateQuotationNumber(computeQuotationPrefix());
                 }
                 const quotationNumber = quotationNumberInput.value;
                 const dateStr = new Date().toLocaleDateString('en-IN');
@@ -2235,15 +2486,17 @@
                     'Panjarapole Cross Rd, Ambawadi,',
                     'Ahmedabad, Gujarat - 380015',
                     `Prepared by: ${preparedByInput.value || '-'}`,
-                    'Email: sales@nantatech.com'
-                ];
+                    preparedByPhoneInput.value ? `Phone: ${preparedByPhoneInput.value}` : '',
+                    preparedByEmailInput.value ? `Email: ${preparedByEmailInput.value}` : 'Email: sales@nantatech.com'
+                ].filter(Boolean);
                 fromLines.forEach((line, i) => doc.text(line, marginX + 4, boxY + 12 + i * 4));
 
                 const toLines = [
                     clientCompanyInput.value || 'N/A',
                     clientNameInput.value ? `Attn: ${clientNameInput.value}` : '',
                     clientEmailInput.value ? `Email: ${clientEmailInput.value}` : '',
-                    clientPhoneInput.value ? `Phone: ${clientPhoneInput.value}` : ''
+                    clientPhoneInput.value ? `Phone: ${clientPhoneInput.value}` : '',
+                    projectVerticalSelect.value ? `Vertical: ${projectVerticalSelect.value}` : ''
                 ].filter(Boolean);
                 if (clientAddressInput.value) {
                     const wrappedAddress = doc.splitTextToSize(clientAddressInput.value, boxWidth - 8);
@@ -2251,17 +2504,11 @@
                 }
                 toLines.forEach((line, i) => doc.text(line, marginX + boxWidth + 10, boxY + 12 + i * 4));
 
-                const tableBody = currentLineItems.map((item, index) => [
-                    String(index + 1),
-                    item.description,
-                    String(item.qty),
-                    formatMoneyPdf(item.rate),
-                    formatMoneyPdf(item.amount)
-                ]);
+                const tableBody = buildPdfTableRows(currentLineItems);
 
                 doc.autoTable({
                     startY: boxY + boxHeight + 8,
-                    head: [['Sr.No', 'Description', 'Qty', 'Unit Rate', 'Amount']],
+                    head: [['Sr.No', 'Description', 'Unit', 'Qty', 'Unit Rate', 'Amount']],
                     body: tableBody,
                     theme: 'grid',
                     styles: { font: 'helvetica', fontSize: 9.5, cellPadding: 3, textColor: [31, 41, 55], valign: 'middle', lineColor: [209, 213, 219], lineWidth: 0.2 },
@@ -2270,9 +2517,10 @@
                     columnStyles: {
                         0: { cellWidth: 13, halign: 'center' },
                         1: { cellWidth: 'auto', halign: 'left' },
-                        2: { cellWidth: 16, halign: 'center' },
-                        3: { cellWidth: 32, halign: 'right', font: 'courier', fontSize: 9 },
-                        4: { cellWidth: 34, halign: 'right', font: 'courier', fontSize: 9, fontStyle: 'bold' }
+                        2: { cellWidth: 18, halign: 'center' },
+                        3: { cellWidth: 14, halign: 'center' },
+                        4: { cellWidth: 30, halign: 'right', font: 'courier', fontSize: 9 },
+                        5: { cellWidth: 32, halign: 'right', font: 'courier', fontSize: 9, fontStyle: 'bold' }
                     },
                     margin: { left: marginX, right: marginX }
                 });
@@ -2307,6 +2555,13 @@
                     doc.setTextColor(31, 41, 55);
                     y += 6.5;
                 }
+
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(31, 41, 55);
+                doc.text(`GST (${GST_RATE_PERCENT}%)`, totalsX, y);
+                doc.setFont('courier', 'normal');
+                doc.text(formatMoneyPdf(currentTotals.gstAmount), rightX, y, { align: 'right' });
+                y += 6.5;
 
                 y -= 2.5;
 
@@ -2382,8 +2637,8 @@
             const commonScaffold = parseFloat(scaffoldingCost.value) || 0;
             const markup = parseFloat(markupPercent.value) || 0;
 
-            function addLineItem(description, qty, rate, amount) {
-                currentLineItems.push({ description, qty, rate, amount });
+            function addLineItem(description, qty, rate, amount, unit = 'Nos') {
+                currentLineItems.push({ description, qty, rate, amount, unit });
             }
 
             const domain = domainSelect.value;
@@ -2416,14 +2671,30 @@
                     const rate = feature.tiers[slabIndex];
                     const amount = rate * cameraCount;
                     analyticsSubtotal += amount;
-                    addLineItem(`${feature.name} (${feature.category})`, cameraCount, rate, amount);
+                    addLineItem(`${feature.name} (${feature.category})`, cameraCount, rate, amount, 'License');
                 });
-                domainSubtotal = analyticsSubtotal;
+                const oneTimeCost = parseFloat(aiOneTimeCost.value) || 0;
+                if (oneTimeCost) addLineItem('One-time implementation & configuration', 1, oneTimeCost, oneTimeCost);
+                domainSubtotal = analyticsSubtotal + oneTimeCost;
 
                 addSummary('Cameras', cameraCount);
                 addSummary('Volume slab', AI_SLAB_LABELS[slabIndex]);
                 addSummary('Analytics selected', selectedCheckboxes.length);
                 addSummary('Analytics subtotal (per year)', formatMoney(analyticsSubtotal));
+                if (oneTimeCost) addSummary('One-time implementation cost', formatMoney(oneTimeCost));
+            } else if (domain === 'si') {
+                let siSubtotal = 0;
+                siItems.forEach(item => {
+                    const qty = Math.max(1, parseInt(item.qty, 10) || 1);
+                    const price = parseFloat(item.price) || 0;
+                    const amount = qty * price;
+                    siSubtotal += amount;
+                    addLineItem(item.name && item.name.trim() ? item.name.trim() : 'SI item', qty, price, amount);
+                });
+                domainSubtotal = siSubtotal;
+
+                addSummary('SI items', siItems.length);
+                addSummary('SI subtotal', formatMoney(siSubtotal));
             } else if (domain === 'av' && projectType.value === 'standee') {
                 const model = standeeModels[standeeModelSelect.value];
                 const quantity = Math.max(1, parseInt(standeeQuantity.value, 10) || 1);
@@ -2467,17 +2738,17 @@
                 const scaffolding = model.scaffoldingFixed + commonScaffold;
                 domainSubtotal = panelCost + controllerCost + installation + fabrication + scaffolding;
 
-                addLineItem(`${ledModelSelect.value} LED Screen – ${area.toFixed(2)} sq ft`, area.toFixed(2), selectedPrice, panelCost);
+                addLineItem(`${ledModelSelect.value} LED Screen – ${area.toFixed(2)} sq ft`, area.toFixed(2), selectedPrice, panelCost, 'Sq Ft');
                 if (selection.matched) {
                     addLineItem(`Controller – ${selection.name}`, selection.units, selection.unitPrice, controllerCost);
                 } else {
                     addLineItem('Controller – no rule match', 1, 0, 0);
                 }
-                addLineItem('Installation', area.toFixed(2), LED_INSTALLATION_RATE_PER_SQFT, installationArea);
+                addLineItem('Installation', area.toFixed(2), LED_INSTALLATION_RATE_PER_SQFT, installationArea, 'Sq Ft');
                 if (commonInstallation) addLineItem('Additional installation cost', 1, commonInstallation, commonInstallation);
-                addLineItem('Fabrication', area.toFixed(2), model.fabricationPerSqFt, fabricationArea);
+                addLineItem('Fabrication', area.toFixed(2), model.fabricationPerSqFt, fabricationArea, 'Sq Ft');
                 if (commonFabrication) addLineItem('Additional fabrication cost', 1, commonFabrication, commonFabrication);
-                addLineItem('Scaffolding', 1, model.scaffoldingFixed, model.scaffoldingFixed);
+                addLineItem('Scaffolding', 1, model.scaffoldingFixed, model.scaffoldingFixed, 'Set');
                 if (commonScaffold) addLineItem('Additional scaffolding cost', 1, commonScaffold, commonScaffold);
 
                 addSummary('LED model', ledModelSelect.value);
@@ -2569,11 +2840,15 @@
                 if (commonFabrication) addSummary('Fabrication cost', formatMoney(commonFabrication));
             }
 
-            lastComputedItem = { label: getCurrentSelectionLabel(), lineItems: currentLineItems.slice(), subtotal: domainSubtotal };
+            lastComputedItem = { label: getCurrentSelectionLabel(), domainKey: getCurrentDomainKey(), lineItems: currentLineItems.slice(), subtotal: domainSubtotal };
+
+            currentProductGroups = [{ label: lastComputedItem.label, start: 0, end: currentLineItems.length }];
 
             let cartTotal = 0;
             cartItems.forEach(item => {
-                item.lineItems.forEach(li => addLineItem(`[${item.label}] ${li.description}`, li.qty, li.rate, li.amount));
+                const start = currentLineItems.length;
+                item.lineItems.forEach(li => addLineItem(li.description, li.qty, li.rate, li.amount, li.unit));
+                currentProductGroups.push({ label: item.label, start, end: currentLineItems.length });
                 cartTotal += item.subtotal;
             });
             if (cartItems.length) {
@@ -2582,13 +2857,17 @@
             }
 
             let customProductsTotal = 0;
-            customProducts.forEach(item => {
-                const qty = Math.max(1, parseInt(item.qty, 10) || 1);
-                const price = parseFloat(item.price) || 0;
-                const amount = qty * price;
-                customProductsTotal += amount;
-                addLineItem(item.name && item.name.trim() ? item.name.trim() : 'Custom product', qty, price, amount);
-            });
+            if (customProducts.length) {
+                const start = currentLineItems.length;
+                customProducts.forEach(item => {
+                    const qty = Math.max(1, parseInt(item.qty, 10) || 1);
+                    const price = parseFloat(item.price) || 0;
+                    const amount = qty * price;
+                    customProductsTotal += amount;
+                    addLineItem(item.name && item.name.trim() ? item.name.trim() : 'Custom product', qty, price, amount);
+                });
+                currentProductGroups.push({ label: 'Custom products', start, end: currentLineItems.length });
+            }
             if (customProductsTotal) {
                 addSummary('Custom products', formatMoney(customProductsTotal));
             }
@@ -2601,19 +2880,24 @@
                 const value = parseFloat(d.value) || 0;
                 discountTotal += d.type === 'percent' ? markedUpTotal * (value / 100) : value;
             });
-            const total = Math.max(0, markedUpTotal - discountTotal);
-            currentTotals = { subtotal, markup, markupAmount: markedUpTotal - subtotal, discountTotal, total };
+            const preGstTotal = Math.max(0, markedUpTotal - discountTotal);
+            const gstAmount = preGstTotal * (GST_RATE_PERCENT / 100);
+            const total = preGstTotal + gstAmount;
+            currentTotals = { subtotal, markup, markupAmount: markedUpTotal - subtotal, discountTotal, preGstTotal, gstAmount, total };
 
             addSummary('Subtotal', formatMoney(subtotal));
             addSummary('Markup', `${markup}%`);
             if (discountTotal) {
                 addSummary('Discount', `– ${formatMoney(discountTotal)}`);
             }
-            addSummary('Estimated total', formatMoney(total), true);
+            addSummary('Total before GST', formatMoney(preGstTotal));
+            addSummary(`GST (${GST_RATE_PERCENT}%)`, formatMoney(gstAmount));
+            addSummary('Estimated total (incl. GST)', formatMoney(total), true);
         }
 
         domainSelect.addEventListener('change', () => {
             showSection();
+            refreshQuotationPrefix();
             calculateEstimate();
         });
         roboticsModelSelect.addEventListener('change', () => {
@@ -2630,6 +2914,12 @@
             if (event.target.matches('input[type="checkbox"]')) {
                 calculateEstimate();
             }
+        });
+        aiOneTimeCost.addEventListener('input', calculateEstimate);
+        aiCategoryJump.addEventListener('change', () => {
+            if (!aiCategoryJump.value) return;
+            const heading = document.getElementById(`ai-cat-${slugify(aiCategoryJump.value)}`);
+            if (heading) heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         projectType.addEventListener('change', () => {
             showSection();
@@ -2670,14 +2960,21 @@
             renderCustomProductRows();
             calculateEstimate();
         });
+        addSiItemButton.addEventListener('click', () => {
+            siItems.push({ id: nextLineItemId++, name: '', qty: 1, price: 0 });
+            renderSiRows();
+            calculateEstimate();
+        });
+        projectVerticalSelect.addEventListener('change', calculateEstimate);
         addToQuoteButton.addEventListener('click', () => {
             calculateEstimate();
             if (!lastComputedItem || !lastComputedItem.lineItems.length) {
                 alert('Configure a product above before adding it to the quote.');
                 return;
             }
-            cartItems.push({ id: nextLineItemId++, label: lastComputedItem.label, lineItems: lastComputedItem.lineItems, subtotal: lastComputedItem.subtotal });
+            cartItems.push({ id: nextLineItemId++, label: lastComputedItem.label, domainKey: lastComputedItem.domainKey, lineItems: lastComputedItem.lineItems, subtotal: lastComputedItem.subtotal });
             renderCartRows();
+            refreshQuotationPrefix();
             calculateEstimate();
         });
         standeeCategory.addEventListener('change', () => {
@@ -2709,6 +3006,10 @@
         ledUnit.addEventListener('change', updateLedState);
         ledControlMode.addEventListener('change', updateLedState);
         ledRedundancy.addEventListener('change', updateLedState);
+        ledAspectMode.addEventListener('change', updateLedAspectSuggestion);
+        ledAspectPreset.addEventListener('change', updateLedAspectSuggestion);
+        ledAspectCustom.addEventListener('input', updateLedAspectSuggestion);
+        ledAspectApplyButton.addEventListener('click', applyLedAspectSuggestion);
         standeeQuantity.addEventListener('input', calculateEstimate);
         installationCost.addEventListener('input', calculateEstimate);
         fabricationCost.addEventListener('input', calculateEstimate);
@@ -2727,6 +3028,9 @@
             ledUnit.value = 'ft';
             ledControlMode.value = 'Synchronous';
             ledRedundancy.value = 'auto';
+            ledAspectMode.value = 'auto';
+            ledAspectPreset.value = '16:9';
+            ledAspectCustom.value = '16:9';
             standeePriceTier.value = 'partner';
             projectType.value = 'standee';
             domainSelect.value = 'av';
@@ -2740,18 +3044,25 @@
             roboticsPriceTier.value = 'distributor';
             roboticsQuantity.value = '1';
             aiCameraCount.value = '25';
+            aiOneTimeCost.value = '0';
+            aiCategoryJump.value = '';
             aiFeatureList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
             updateAiFeaturePrices();
             discounts = [];
             customProducts = [];
+            siItems = [];
             cartItems = [];
+            projectVerticalSelect.value = '';
             renderDiscountRows();
             renderCustomProductRows();
+            renderSiRows();
             renderCartRows();
-            quotationNumberInput.value = generateQuotationNumber();
+            quotationNumberInput.value = generateQuotationNumber(computeQuotationPrefix());
             preparedByInput.value = '';
+            preparedByPhoneInput.value = '';
+            preparedByEmailInput.value = '';
             clientNameInput.value = '';
             clientCompanyInput.value = '';
             clientEmailInput.value = '';
@@ -2769,7 +3080,7 @@
             calculateEstimate();
         });
 
-        quotationNumberInput.value = generateQuotationNumber();
+        quotationNumberInput.value = generateQuotationNumber(computeQuotationPrefix());
         populateStandeeModels(standeeCategory.value);
         populateLedModels(ledCategory.value);
         populateConferenceModels();
